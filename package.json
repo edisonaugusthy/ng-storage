@@ -8,8 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "build_lib": "ng build DragMe",
-    "npm_pack": "cd dist/drag-me && npm pack",
+    "build_lib": "ng build storage",
+    "npm_pack": "cd dist/storage && npm pack",
     "package": "npm run build_lib && npm run npm_pack"
   },
   "private": true,

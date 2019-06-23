@@ -7,7 +7,7 @@ NB:we relies on session and data wont get cleared on refresh but tab close will 
 
 ## Usage
  - Run `npm i ng-storage --save` to add module to project
- - And Import via `import { StorageModule } from 'drag-me';` in App Module
+ - And Import via `import { StorageModule } from 'storage';` in App Module
  - Add to imports
  ```
      imports: [
@@ -16,12 +16,12 @@ NB:we relies on session and data wont get cleared on refresh but tab close will 
     ],
  ```
 
-- Then import service `import { NgStorageService } from "ng-storage";`
+- Then import service `import { NgStorageService } from 'storage';`
 - Then Initialize in constructor
     ```
     constructor(private http: HttpClient, private NgStorageService: StorageService) {
     }
-   ``` 
+   ```
 
 ##### Setting Data
 
@@ -30,7 +30,7 @@ Please note that we have to pass key value pairs to service , and key should be 
  `this.StorageService.setData({ key: 'keyofdata', value: res })`
 
  NB: data format that accepted by `setData` method is
-    
+
     export interface dataFormat {
      key: string
      value?: any
