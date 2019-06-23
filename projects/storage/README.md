@@ -19,7 +19,7 @@ NB:we relies on session and data wont get cleared on refresh but tab close will 
 - Then import service `import { NgStorageService } from 'storage';`
 - Then Initialize in constructor
     ```
-    constructor(private http: HttpClient, private NgStorageService: StorageService) {
+    constructor(private http: HttpClient, private StorageService: NgStorageService) {
     }
    ```
 

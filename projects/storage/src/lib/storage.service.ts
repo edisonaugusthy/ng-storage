@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 // tslint:disable-next-line:class-name
-export interface cookieData {
+export interface dataFormat {
   key?: string;
   value?: any;
 }
@@ -18,7 +18,7 @@ export class NgStorageService {
   }
 
 
-  setData(data: cookieData) {
+  setData(data: dataFormat) {
     // tslint:disable-next-line:no-unused-expression
     data.key && sessionStorage.setItem(data.key.toString().toLowerCase(), JSON.stringify(data.value));
   }
