@@ -7,7 +7,7 @@ NB:we relies on session and data wont get cleared on refresh but tab close will 
 
 ## Usage
  - Run `npm i ng-storage --save` to add module to project
- - And Import via `import { StorageModule } from 'storage';` in App Module
+ - And Import via `import { StorageModule } from 'ng7-storage';` in App Module
  - Add to imports
  ```
      imports: [
@@ -16,7 +16,7 @@ NB:we relies on session and data wont get cleared on refresh but tab close will 
     ],
  ```
 
-- Then import service `import { NgStorageService } from 'storage';`
+- Then import service `import { NgStorageService } from 'ng7-storage';`
 - Then Initialize in constructor
     ```
     constructor(private http: HttpClient, private StorageService: NgStorageService) {
