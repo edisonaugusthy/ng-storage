@@ -19,7 +19,7 @@ NB:we relies on session and data wont get cleared on refresh but tab close will 
 - Then import service `import { NgStorageService } from 'ng7-storage';`
 - Then Initialize in constructor
     ```
-    constructor(private http: HttpClient, private StorageService: NgStorageService) {
+    constructor(private StorageService: NgStorageService) {
     }
    ```
 
@@ -49,11 +49,11 @@ eg:`this.StorageService.getData('key_of_data')`
 
  Examples :
 
- removeData:`this.StorageService.removeData('key_of_data')`
+ removeData : `this.StorageService.removeData('key_of_data')`
 
- removeAll`this.StorageService.removeAll()`
+ removeAll : `this.StorageService.removeAll()`
 
- ## Browsers support
+## Browsers support
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/vivaldi/vivaldi_48x48.png" alt="Vivaldi" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Vivaldi |
 | --------- | --------- | --------- | --------- |
