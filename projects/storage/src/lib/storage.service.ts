@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 
-// tslint:disable-next-line:class-name
+
 export interface dataFormat {
   key?: string;
   value?: any;
+  encrypt?: Boolean;
+  decrypt?: Boolean;
 }
 @Injectable({
   providedIn: 'root'
@@ -11,7 +13,6 @@ export interface dataFormat {
 export class NgStorageService {
 
   constructor() {
-    // tslint:disable-next-line:triple-equals
     if ((typeof window.sessionStorage == 'undefined')) {
       console.error('your browser dont support ng-storage, Please update your browser');
     }
@@ -19,12 +20,28 @@ export class NgStorageService {
 
 
   setData(data: dataFormat) {
-    // tslint:disable-next-line:no-unused-expression
-    data.key && sessionStorage.setItem(data.key.toString().toLowerCase(), JSON.stringify(data.value));
+    if (data.key) {
+      if (data.encrypt) {
+        sessionStorage.setItem(data.key.toString().toLowerCase(), window.btoa(JSON.stringify(data.value)));
+      }
+      else {
+        sessionStorage.setItem(data.key.toString().toLowerCase(), JSON.stringify(data.value));
+      }
+      return true;
+    }
+    else {
+      return false
+    }
+
   }
 
-  getData(key) {
-    return JSON.parse(sessionStorage.getItem(key.toString().toLowerCase()));
+  getData(data: dataFormat) {
+    if (data.decrypt) {
+      return window.atob(JSON.parse(sessionStorage.getItem(data.key.toString().toLowerCase())));
+
+    } else {
+      return JSON.parse(sessionStorage.getItem(data.key.toString().toLowerCase()));
+    }
   }
 
   removeData(key) {
