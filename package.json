@@ -4,10 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
+    "build": "ng build --prod --outputHashing=all",
     "build_lib": "ng build storage",
     "npm_pack": "cd dist/storage && npm pack",
     "package": "npm run build_lib && npm run npm_pack"
