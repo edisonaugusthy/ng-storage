@@ -1,7 +1,7 @@
 {
   "name": "ng7-storage",
-  "version": "1.1.1",
-  "description": "cookieless browser storage for angular",
+  "version": "1.1.2",
+  "description": "cookie less browser storage for angular",
   "keywords": [
     "Angular",
     "Library",
