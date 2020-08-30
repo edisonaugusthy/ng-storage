@@ -14,7 +14,7 @@ export class NgStorageService {
 
   constructor() {
     if ((typeof window.sessionStorage == 'undefined')) {
-      console.error('your browser dont support ng-storage, Please update your browser');
+      console.error(`your browser doesn't support ng-storage, Please update your browser`);
     }
   }
 
