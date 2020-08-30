@@ -2,7 +2,6 @@
 name: NPM Publish
 
 on:
-  on:
   release:
     types: [published]
 
