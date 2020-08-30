@@ -7,7 +7,7 @@ NB:we relies on session and data wont get cleared on refresh but tab close will 
 
 ## Usage
  - Run `npm i ng-storage --save` to add module to project
- - And Import via `import { StorageModule } from 'ng7-storage';` in App Module
+ - Add  `import { StorageModule } from 'ng7-storage';` in App Module
  - Add to imports
  ```
      imports: [
@@ -40,7 +40,7 @@ Please note that we have to pass key value pairs to service , and key should be 
 
 #### Getting Data
 
-Use `getData` method to retrive data, and it intake key as argument
+Use `getData` method to retrieve data, and it intake key as argument
 
 eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
 
@@ -54,6 +54,12 @@ eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
  removeData : `this.StorageService.removeData('key_of_data')`
 
  removeAll : `this.StorageService.removeAll()`
+
+ #### Available methods
+      setData()
+      getData()
+      removeData()
+      removeAll()
 
 ## Browsers support
 
@@ -83,7 +89,7 @@ eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
 <table>
   <tr>
     <td align="center"><a href="https://github.com/edisonaugusthy"><img src="https://github.com/edisonaugusthy.png?size=100" width="100px;" alt="Edison"/><br /><sub><b>Edison Augusthy</b></sub></a><br /><a href="https://github.com/edisonaugusthy/ng-storage/commits?author=edisonaugusthy" title="Edison">💻</a></td>
- 
+
   </tr>
-  
+
 </table>
