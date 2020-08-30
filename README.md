@@ -1,4 +1,4 @@
-# ng-storage
+# ng-storage ![Build](https://github.com/edisonaugusthy/ng-storage/workflows/NPM%20Publish/badge.svg)
 
 A better way to store data in browser without cookies,
 
@@ -83,7 +83,7 @@ eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
 <table>
   <tr>
     <td align="center"><a href="https://github.com/edisonaugusthy"><img src="https://github.com/edisonaugusthy.png?size=100" width="100px;" alt="Edison"/><br /><sub><b>Edison Augusthy</b></sub></a><br /><a href="https://github.com/edisonaugusthy/ng-storage/commits?author=edisonaugusthy" title="Edison">💻</a></td>
- 
+
   </tr>
-  
+
 </table>
