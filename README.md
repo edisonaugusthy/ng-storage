@@ -2,14 +2,21 @@
 ![Build](https://github.com/edisonaugusthy/ng-storage/workflows/Node.js%20CI/badge.svg)![Publish](https://github.com/edisonaugusthy/ng-storage/workflows/NPM%20Publish/badge.svg)
 
 Share Data among multiple components in angular using browser session storage
-[Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample)
+
+ see [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample) here
+
+Angular compatibility
+| Angular Version | package version
+| ------------- |:-------------:|
+| angular 8 and below | 1.1.4 and below |
+| angular 9 and above(ivy version)| 1.1.5 and above|
 
 ## Usage steps
  - Run `npm i ng-storage --save` in command prompt from root of your project folder
  - Add import to App Module like this `import { StorageModule } from 'ng7-storage';`
  - Add to imports array in app module
- ```
-     imports: [
+
+ ```imports: [
       BrowserModule,
       StorageModule
     ],
