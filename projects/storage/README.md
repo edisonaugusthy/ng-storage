@@ -1,33 +1,42 @@
 # ng-storage
+![Build](https://github.com/edisonaugusthy/ng-storage/workflows/Node.js%20CI/badge.svg)![Publish](https://github.com/edisonaugusthy/ng-storage/workflows/NPM%20Publish/badge.svg)
 
-A better way to store data in browser without cookies,
+Share Data among multiple components in angular using browser session storage
 
-NB:we relies on session and data wont get cleared on refresh but tab close will clear all data
+ see [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample) here
 
+Angular compatibility
+| Angular Version | package version
+| ------------- |:-------------:|
+| angular 8 and below | 1.1.4 and below |
+| angular 9 and above(ivy version)| 1.1.5 and above|
 
-## Usage
- - Run `npm i ng-storage --save` to add module to project
- - Add  `import { StorageModule } from 'ng7-storage';` in App Module
- - Add to imports
- ```
-     imports: [
+## Usage steps
+ - Run `npm i ng-storage --save` in command prompt from root of your project folder
+ - Add import to App Module like this `import { StorageModule } from 'ng7-storage';`
+ - Add to imports array in app module
+
+ ```imports: [
       BrowserModule,
       StorageModule
     ],
  ```
 
-- Then import service `import { NgStorageService } from 'ng7-storage';`
-- Then Initialize in constructor
+- Then import NgStorageService service `import { NgStorageService } from 'ng7-storage';` in the components that you would like to use
+- Then Initialize StorageService in the component constructor
     ```
     constructor(private StorageService: NgStorageService) {
+
     }
    ```
 
+follow below methods to set and retrieve data to storage
 ##### Setting Data
 
-Please note that we have to pass key value pairs to service , and key should be string and do not pass value as json string
-
  `this.StorageService.setData({ key: 'key_of_data', value: res ,encrypt:optional|boolean})`
+
+  Pass key value pairs to store data , and key should be  valid string
+
 
  NB: data format that accepted by `setData` method is
 
@@ -38,13 +47,18 @@ Please note that we have to pass key value pairs to service , and key should be 
      decrypt?: Boolean;
     }
 
-#### Getting Data
+NB:`encrypt` is a development onprogress feature and may have issues when setting data that has special characters
 
-Use `getData` method to retrieve data, and it intake key as argument
+#### Getting Data
 
 eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
 
+Use `getData` method to retrieve data, pass `key` of the item
+
+
 #### Remove Data
+
+ For removing data, we can either remove by a single key or we can remove all data at once
 
  - `removeData` method is used remove single item based on key
  - `removeAll` method remove all data stored
@@ -55,27 +69,22 @@ eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
 
  removeAll : `this.StorageService.removeAll()`
 
- #### Available methods
-      setData()
-      getData()
-      removeData()
-      removeAll()
+#### All Available methods
+ - `setData()`
+ - `getData()`
+ - `removeData()`
+ - `removeAll()`
 
 ## Browsers support
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/vivaldi/vivaldi_48x48.png" alt="Vivaldi" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Vivaldi |
 | --------- | --------- | --------- | --------- |
-| IE11, Edge| last 8 versions| last 8 versions| last 2 versions
+| IE11, Edge| last 8 versions| last 8 versions| last 5 versions
 
 
 ## Built with 🔧
 
-
-* HTML - For the web framework
-* CSS - For styling components
-* JavaScript - For magic!
-* Angular - To add to the JavaScript magic!
-
+* Angular
 
 ## Developing 👷
 

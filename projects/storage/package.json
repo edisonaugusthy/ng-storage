@@ -1,10 +1,12 @@
 {
   "name": "ng7-storage",
-  "version": "1.1.4",
-  "description": "Store data in browser in more secure way using browser Session",
+  "version": "1.1.5",
+  "description": "Share Data among multiple components in angular using browser session storage",
   "keywords": [
     "Angular",
-    "Library",
+    "ng-storage",
+    "ng7-storage",
+    "cookielss",
     "Storage",
     "browser Storage",
     "Session Storage"
