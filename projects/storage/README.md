@@ -1,14 +1,11 @@
 # ng-storage
 
-A better way to store data in browser without cookies,
-
-NB:we relies on session and data wont get cleared on refresh but tab close will clear all data
-
-
-## Usage
- - Run `npm i ng-storage --save` to add module to project
- - Add  `import { StorageModule } from 'ng7-storage';` in App Module
- - Add to imports
+Share Data among multiple components in angular using browser session storage
+[Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample)
+## Usage steps
+ - Run `npm i ng-storage --save` in command prompt from root of your project folder
+ - Add import to App Module like this `import { StorageModule } from 'ng7-storage';`
+ - Add to imports array in app module
  ```
      imports: [
       BrowserModule,
@@ -16,16 +13,16 @@ NB:we relies on session and data wont get cleared on refresh but tab close will 
     ],
  ```
 
-- Then import service `import { NgStorageService } from 'ng7-storage';`
-- Then Initialize in constructor
+- Then import NgStorageService service `import { NgStorageService } from 'ng7-storage';` in the components that you would like to use
+- Then Initialize StorageService in the component constructor
     ```
     constructor(private StorageService: NgStorageService) {
     }
    ```
-
+- follow below methods to set and retrieve data to storage
 ##### Setting Data
 
-Please note that we have to pass key value pairs to service , and key should be string and do not pass value as json string
+Please note that we have to pass key value pairs to service , and key should be string value
 
  `this.StorageService.setData({ key: 'key_of_data', value: res ,encrypt:optional|boolean})`
 
@@ -38,13 +35,17 @@ Please note that we have to pass key value pairs to service , and key should be 
      decrypt?: Boolean;
     }
 
+NB:`encrypt` is a development onprogress feature and may have issues when setting data that has special characters
+
 #### Getting Data
 
-Use `getData` method to retrieve data, and it intake key as argument
+Use `getData` method to retrieve data, pass `key` as parameter
 
 eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
 
 #### Remove Data
+
+ For removing data we ca either remove by a single key or we can remove all data at once
 
  - `removeData` method is used remove single item based on key
  - `removeAll` method remove all data stored
@@ -55,11 +56,11 @@ eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
 
  removeAll : `this.StorageService.removeAll()`
 
-#### Available methods
-  setData()
-  getData()
-  removeData()
-  removeAll()
+#### All Available methods
+ - setData()
+ - getData()
+ - removeData()
+ - removeAll()
 
 ## Browsers support
 
@@ -70,12 +71,7 @@ eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
 
 ## Built with 🔧
 
-
-* HTML - For the web framework
-* CSS - For styling components
-* JavaScript - For magic!
-* Angular - To add to the JavaScript magic!
-
+* Angular
 
 ## Developing 👷
 
