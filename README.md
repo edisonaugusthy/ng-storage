@@ -1,7 +1,9 @@
 # ng-storage
 
 Share Data among multiple components in angular using browser session storage
+
 [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample)
+
 ## Usage steps
  - Run `npm i ng-storage --save` in command prompt from root of your project folder
  - Add import to App Module like this `import { StorageModule } from 'ng7-storage';`
@@ -17,14 +19,17 @@ Share Data among multiple components in angular using browser session storage
 - Then Initialize StorageService in the component constructor
     ```
     constructor(private StorageService: NgStorageService) {
+
     }
    ```
-- follow below methods to set and retrieve data to storage
+
+follow below methods to set and retrieve data to storage
 ##### Setting Data
 
-Please note that we have to pass key value pairs to service , and key should be string value
-
  `this.StorageService.setData({ key: 'key_of_data', value: res ,encrypt:optional|boolean})`
+
+  Pass key value pairs to store data , and key should be  valid string
+
 
  NB: data format that accepted by `setData` method is
 
@@ -39,13 +44,14 @@ NB:`encrypt` is a development onprogress feature and may have issues when settin
 
 #### Getting Data
 
-Use `getData` method to retrieve data, pass `key` as parameter
-
 eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
+
+Use `getData` method to retrieve data, pass `key` of the item
+
 
 #### Remove Data
 
- For removing data we ca either remove by a single key or we can remove all data at once
+ For removing data, we can either remove by a single key or we can remove all data at once
 
  - `removeData` method is used remove single item based on key
  - `removeAll` method remove all data stored
@@ -57,16 +63,16 @@ eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
  removeAll : `this.StorageService.removeAll()`
 
 #### All Available methods
- - setData()
- - getData()
- - removeData()
- - removeAll()
+ - `setData()`
+ - `getData()`
+ - `removeData()`
+ - `removeAll()`
 
 ## Browsers support
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/vivaldi/vivaldi_48x48.png" alt="Vivaldi" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Vivaldi |
 | --------- | --------- | --------- | --------- |
-| IE11, Edge| last 8 versions| last 8 versions| last 2 versions
+| IE11, Edge| last 8 versions| last 8 versions| last 5 versions
 
 
 ## Built with 🔧
