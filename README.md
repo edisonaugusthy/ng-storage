@@ -1,7 +1,7 @@
 # ng-storage
+![Build](https://github.com/edisonaugusthy/ng-storage/workflows/Node.js%20CI/badge.svg)![Publish](https://github.com/edisonaugusthy/ng-storage/workflows/NPM%20Publish/badge.svg)
 
 Share Data among multiple components in angular using browser session storage
-
 [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample)
 
 ## Usage steps
