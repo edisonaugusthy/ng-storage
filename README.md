@@ -56,10 +56,10 @@ eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
  removeAll : `this.StorageService.removeAll()`
 
 #### Available methods
-  setData()
-  getData()
-  removeData()
-  removeAll()
+ - setData()
+ - getData()
+ - removeData()
+ - removeAll()
 
 ## Browsers support
 
