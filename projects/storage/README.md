@@ -1,30 +1,30 @@
 # ng-storage
-![Build](https://github.com/edisonaugusthy/ng-storage/workflows/Node.js%20CI/badge.svg)![Publish](https://github.com/edisonaugusthy/ng-storage/workflows/NPM%20Publish/badge.svg)
 
 Share Data among multiple components in angular using browser session storage
 
  see [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample) here
 
 Angular compatibility
-| Angular Version | package version
-| ------------- |:-------------:|
-| angular 8 and below | 1.1.4 and below |
-| angular 9 and above(ivy version)| 1.1.5 and above|
+| Angular Version                  | package version |
+| -------------------------------- | :-------------: |
+| angular 8 and below              | 1.1.4 and below |
+| angular 9 and above(ivy version) | 1.1.5 and above |
 
 ## Usage steps
  - Run `npm i ng-storage --save` in command prompt from root of your project folder
  - Add import to App Module like this `import { StorageModule } from 'ng7-storage';`
  - Add to imports array in app module
 
- ```imports: [
+  ```ts
+    imports: [
       BrowserModule,
       StorageModule
     ],
  ```
 
 - Then import NgStorageService service `import { NgStorageService } from 'ng7-storage';` in the components that you would like to use
-- Then Initialize StorageService in the component constructor
-    ```
+- Then Initialize `StorageService` in the component constructor
+    ```ts
     constructor(private StorageService: NgStorageService) {
 
     }
@@ -33,27 +33,33 @@ Angular compatibility
 follow below methods to set and retrieve data to storage
 ##### Setting Data
 
- `this.StorageService.setData({ key: 'key_of_data', value: res ,encrypt:optional|boolean})`
+```ts
+ this.StorageService.setData({ key: 'key_of_data', value: res ,encrypt:optional|boolean})
+ ```
 
-  Pass key value pairs to store data , and key should be  valid string
+  >Pass key value pairs to store data , and key should be  valid string
 
 
  NB: data format that accepted by `setData` method is
-
+```ts
     export interface dataFormat {
      key: string;
      value?: any;
      encrypt?: Boolean;
      decrypt?: Boolean;
     }
+  ```
 
 NB:`encrypt` is a development onprogress feature and may have issues when setting data that has special characters
 
 #### Getting Data
 
-eg:`this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})`
+eg:
+ ```js
+ this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})
+ ```
 
-Use `getData` method to retrieve data, pass `key` of the item
+>Use `getData` method to retrieve data, pass `key` of the item
 
 
 #### Remove Data
@@ -70,16 +76,18 @@ Use `getData` method to retrieve data, pass `key` of the item
  removeAll : `this.StorageService.removeAll()`
 
 #### All Available methods
- - `setData()`
- - `getData()`
- - `removeData()`
- - `removeAll()`
+```ts
+ setData()
+ getData()
+ removeData()
+ removeAll()
+ ```
 
 ## Browsers support
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/vivaldi/vivaldi_48x48.png" alt="Vivaldi" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Vivaldi |
-| --------- | --------- | --------- | --------- |
-| IE11, Edge| last 8 versions| last 8 versions| last 5 versions
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IE11, Edge                                                                                                                                                                                                      | last 8 versions                                                                                                                                                                                                   | last 8 versions                                                                                                                                                                                               | last 5 versions                                                                                                                                                                                                   |
 
 
 ## Built with 🔧
