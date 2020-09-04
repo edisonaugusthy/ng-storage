@@ -1,8 +1,9 @@
-# ng-storage
+# ng7-storage
 
 Share Data among multiple components in angular using browser session storage
 
  see [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample) here
+ More on [Github](https://github.com/edisonaugusthy/ng-storage)
 
 Angular compatibility
 | Angular Version                  | package version |
@@ -11,15 +12,15 @@ Angular compatibility
 | angular 9 and above(ivy version) | 1.1.5 and above |
 
 ## Usage steps
- - Run `npm i ng-storage --save` in command prompt from root of your project folder
+ - Run `npm i ng7-storage --save` in command prompt from root of your project folder
  - Add import to App Module like this `import { StorageModule } from 'ng7-storage';`
  - Add to imports array in app module
 
   ```ts
-    imports: [
+     imports: [
       BrowserModule,
       StorageModule
-    ],
+     ],
  ```
 
 - Then import NgStorageService service `import { NgStorageService } from 'ng7-storage';` in the components that you would like to use
@@ -50,7 +51,7 @@ follow below methods to set and retrieve data to storage
     }
   ```
 
-NB:`encrypt` is a development onprogress feature and may have issues when setting data that has special characters
+NB:*`encrypt` is a development onprogress feature and may have issues when setting data that has special characters*
 
 #### Getting Data
 
@@ -59,7 +60,7 @@ eg:
  this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})
  ```
 
->Use `getData` method to retrieve data, pass `key` of the item
+>Use `getData` method to retrieve data, pass `key` of the item. pass `decrypt` as `true` if you have encrypted the data
 
 
 #### Remove Data
@@ -89,17 +90,6 @@ eg:
 | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | IE11, Edge                                                                                                                                                                                                      | last 8 versions                                                                                                                                                                                                   | last 8 versions                                                                                                                                                                                               | last 5 versions                                                                                                                                                                                                   |
 
-
-## Built with 🔧
-
-* Angular
-
-## Developing 👷
-
-1. [Clone this repo](https://github.com/edisonaugusthy/ng-storage.git) with git.
-1. Install dependencies by running `npm install` within the directory that you cloned (probably `ng-storage`).
-1. Start the development server with `ng serve --o`.
-1. Open development site by going to [http://localhost:4200](http://localhost:4200) in your browser.
 
 ## Author 🔮
 
