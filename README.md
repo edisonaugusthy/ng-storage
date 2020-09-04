@@ -1,9 +1,9 @@
-# ng-storage
-![Build](https://github.com/edisonaugusthy/ng-storage/workflows/Node.js%20CI/badge.svg)![Publish](https://github.com/edisonaugusthy/ng-storage/workflows/NPM%20Publish/badge.svg)
+# ng7-storage
 
-Share Data among multiple components in angular using browser session storage
+Share Data among multiple components in angularusing browser session storage
 
  see [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample) here
+Available in  [NPM](https://www.npmjs.com/package/ng7-storage)
 
 Angular compatibility
 | Angular Version                  | package version |
@@ -12,15 +12,15 @@ Angular compatibility
 | angular 9 and above(ivy version) | 1.1.5 and above |
 
 ## Usage steps
- - Run `npm i ng-storage --save` in command prompt from root of your project folder
+ - Run `npm i ng7-storage --save` in command prompt from root of your project folder
  - Add import to App Module like this `import { StorageModule } from 'ng7-storage';`
  - Add to imports array in app module
 
   ```ts
-    imports: [
+     imports: [
       BrowserModule,
       StorageModule
-    ],
+     ],
  ```
 
 - Then import NgStorageService service `import { NgStorageService } from 'ng7-storage';` in the components that you would like to use
@@ -51,7 +51,7 @@ follow below methods to set and retrieve data to storage
     }
   ```
 
-NB:`encrypt` is a development onprogress feature and may have issues when setting data that has special characters
+NB:*`encrypt` is a development onprogress feature and may have issues when setting data that has special characters*
 
 #### Getting Data
 
@@ -60,7 +60,7 @@ eg:
  this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})
  ```
 
->Use `getData` method to retrieve data, pass `key` of the item
+>Use `getData` method to retrieve data, pass `key` of the item. pass `decrypt` as `true` if you have encrypted the data
 
 
 #### Remove Data
