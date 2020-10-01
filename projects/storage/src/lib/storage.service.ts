@@ -11,10 +11,10 @@ export interface dataFormat {
   providedIn: 'root'
 })
 export class NgStorageService {
-
+  private message = `Your browser doesn't support ng-storage, Please update your browser`
   constructor() {
     if ((typeof window.sessionStorage == 'undefined')) {
-      console.error(`your browser doesn't support ng-storage, Please update your browser`);
+      console.error(this.message);
     }
   }
 
