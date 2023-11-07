@@ -2,94 +2,92 @@
 
 Share Data among multiple components in angular using browser session storage
 
- see [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample) here
- More on [Github](https://github.com/edisonaugusthy/ng-storage)
+see [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample) here
+More on [Github](https://github.com/edisonaugusthy/ng-storage)
 
 Angular compatibility
-| Angular Version                  | package version |
+| Angular Version | package version |
 | -------------------------------- | :-------------: |
-| angular 8 and below              | 1.1.4 and below |
+| angular 8 and below | 1.1.4 and below |
 | angular 9 and above(ivy version) | 1.1.5 and above |
+| angular 10 and above|1.1.8 and above |
+| angular 14 and above|1.1.9 and above |
 
 ## Usage steps
- - Run `npm i ng7-storage --save` in command prompt from root of your project folder
- - Add import to App Module like this `import { StorageModule } from 'ng7-storage';`
- - Add to imports array in app module
 
-  ```ts
-     imports: [
-      BrowserModule,
-      StorageModule
-     ],
- ```
+- Run `npm i ng7-storage --save`
+
+- Add to providers array in app module
+
+```ts
+   providers: [
+    NgStorageService
+   ],
+```
 
 - Then import NgStorageService service `import { NgStorageService } from 'ng7-storage';` in the components that you would like to use
-- Then Initialize `StorageService` in the component constructor
-    ```ts
-    constructor(private StorageService: NgStorageService) {
+- Then Initialize `NgStorageService` in the component constructor
 
-    }
-   ```
+  ```ts
+  constructor(private ngStorage: NgStorageService) {
+
+  }
+  ```
 
 follow below methods to set and retrieve data to storage
+
 ##### Setting Data
 
 ```ts
- this.StorageService.setData({ key: 'key_of_data', value: res ,encrypt:optional|boolean})
- ```
+this.ngStorage.setData({ key: "key", value: "data", encrypt: boolean });
+```
 
-  >Pass key value pairs to store data , and key should be  valid string
+> Pass key value pairs to store data , and key should be valid string
 
+NB: data format that accepted by `setData` method is
 
- NB: data format that accepted by `setData` method is
 ```ts
-    export interface dataFormat {
-     key: string;
-     value?: any;
-     encrypt?: Boolean;
-     decrypt?: Boolean;
-    }
-  ```
+export interface IsetData {
+  key: string;
+  value?: any;
+  encrypt?: Boolean;
+  decrypt?: Boolean;
+}
+```
 
-NB:*`encrypt` is a development onprogress feature and may have issues when setting data that has special characters*
+NB:_`encrypt` is a development onprogress feature and may have issues when setting data that has special characters_
 
 #### Getting Data
 
 eg:
- ```js
- this.StorageService.getData({key: 'key_of_data',decrypt:optional|boolean})
- ```
 
->Use `getData` method to retrieve data, pass `key` of the item. pass `decrypt` as `true` if you have encrypted the data
+```js
+  this.ngStorage.getData({ key: "key", decrypt?: boolean });
+```
 
+> Use `getData` method to retrieve data, pass `key` of the item. pass `decrypt` as `true` if you have encrypted the data
 
 #### Remove Data
 
- For removing data, we can either remove by a single key or we can remove all data at once
+For removing data, we can either remove by a single key or we can remove all data at once
 
- - `removeData` method is used remove single item based on key
- - `removeAll` method remove all data stored
+- `removeData` method is used remove single item based on key
+- `removeAll` method remove all data stored
 
- Examples :
+Examples :
 
- removeData : `this.StorageService.removeData('key_of_data')`
+removeData : `this.ngStorage.removeData('key')`
 
- removeAll : `this.StorageService.removeAll()`
+removeAll : `this.ngStorage.removeAll()`
 
 #### All Available methods
+
 ```ts
- setData()
- getData()
- removeData()
- removeAll()
- ```
-
-## Browsers support
-
-| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/vivaldi/vivaldi_48x48.png" alt="Vivaldi" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Vivaldi |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| IE11, Edge                                                                                                                                                                                                      | last 8 versions                                                                                                                                                                                                   | last 8 versions                                                                                                                                                                                               | last 5 versions                                                                                                                                                                                                   |
-
+setData();
+getData();
+removeData();
+removeAll();
+```
 
 ## Author 🔮
 
