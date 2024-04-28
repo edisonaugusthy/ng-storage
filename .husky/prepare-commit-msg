@@ -1,4 +1,9 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+# Exit early if in a CI/CD environment
+if [ -n "$CI" ]; then
+  exit 0
+fi
 
+. "$(dirname -- "$0")/_/husky.sh"
+# Original code with potential interactive issues
 exec < /dev/tty && node_modules/.bin/git-cz --hook || true
