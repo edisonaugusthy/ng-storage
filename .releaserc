@@ -9,8 +9,7 @@
     [
       "@semantic-release/npm",
       {
-        "npmPublish": true,
-        "pkgRoot": "dist/ng-storage"
+        "npmPublish": true
       }
     ],
     "@semantic-release/git"
