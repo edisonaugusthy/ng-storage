@@ -18,6 +18,11 @@
         "publishCmd": "echo ::set-output name=nextVer::${nextRelease.version}"
       }
     ],
-    "@semantic-release/git"
+    [
+      "@semantic-release/git",
+      {
+        "message": "feat(release): updated to ${nextRelease.version} [skip ci]"
+      }
+    ]
   ]
 }
