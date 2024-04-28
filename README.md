@@ -1,27 +1,89 @@
-# NgStorage
+# ng7-storage
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.6.
+Share Data among multiple components in angular using browser session storage
 
-## Development server
+see [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample) here
+More on [Github](https://github.com/edisonaugusthy/ng-storage)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Angular compatibility
+| Angular Version | package version |
+| -------------------------------- | :-------------: |
+| angular 8 and below | 1.1.4 and below |
+| angular 9 and above(ivy version) | 1.1.5 and above |
+| angular 10 and above|1.1.8 and above |
+| angular 14 and above|1.1.9 and above |
 
-## Code scaffolding
+## Usage steps
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Run `npm i ng7-storage --save`
 
-## Build
+- Add to providers array in app module
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```ts
+   providers: [
+    NgStorageService
+   ],
+```
 
-## Running unit tests
+- Then import NgStorageService service `import { NgStorageService } from 'ng7-storage';` in the components that you would like to use
+- Then Initialize `NgStorageService` in the component constructor
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+  ```ts
+  constructor(private ngStorage: NgStorageService) {
 
-## Running end-to-end tests
+  }
+  ```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+follow below methods to set and retrieve data to storage
 
-## Further help
+##### Setting Data
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+```ts
+this.ngStorage.setData( key: "key", value: "string|object|array", encrypt: boolean );
+```
+
+> Pass key value pairs to store data , and key should be valid string
+
+NB:_`encrypt` is a development onprogress feature and may have issues when setting data that has special characters_
+
+#### Getting Data
+
+eg:
+
+```js
+  this.ngStorage.getData(key: "key", decrypt?: boolean );
+```
+
+> Use `getData` method to retrieve data, pass `key` of the item. pass `decrypt` as `true` if you have encrypted the data
+
+#### Remove Data
+
+For removing data, we can either remove by a single key or we can remove all data at once
+
+- `removeData` method is used remove single item based on key
+- `removeAll` method remove all data stored
+
+Examples :
+
+removeData : `this.ngStorage.removeData('key')`
+
+removeAll : `this.ngStorage.removeAll()`
+
+#### All Available methods
+
+```ts
+setData();
+getData();
+removeData();
+removeAll();
+```
+
+## Author 🔮
+
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/edisonaugusthy"><img src="https://github.com/edisonaugusthy.png?size=100" width="100px;" alt="Edison"/><br /><sub><b>Edison Augusthy</b></sub></a><br /><a href="https://github.com/edisonaugusthy/ng-storage/commits?author=edisonaugusthy" title="Edison">💻</a></td>
+
+  </tr>
+
+</table>
