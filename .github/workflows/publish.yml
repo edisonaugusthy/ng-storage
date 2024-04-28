@@ -20,6 +20,10 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        
+      - name: Disable Husky Hooks
+        run: export HUSKY_SKIP_HOOKS=1
+
       - name: Build the package
         run: npm run build 
 
