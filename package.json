@@ -7,6 +7,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
+    "semantic-release": "semantic-release",
     "prebuild": "npm --no-git-tag-version version patch",
     "publish": "npm run package && cd dist/storage && npm publish",
     "build_lib": "ng build storage --configuration production",
@@ -47,6 +48,7 @@
     "karma-jasmine-html-reporter": "^1.5.0",
     "ng-packagr": "^16.2.3",
     "protractor": "~7.0.0",
+    "semantic-release": "^23.0.8",
     "ts-node": "~7.0.0",
     "tslint": "~6.1.0",
     "typescript": "~4.9.5"
