@@ -1,15 +1,18 @@
 {
-  "branches": ["master", "next"],
+  "branches": [
+    "master",
+    "next"
+  ],
   "plugins": [
-    "@semantic-release/commit-analyzer", 
+    "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     [
-        "@semantic-release/npm",
-        {
-          "npmPublish": true,
-          "tarballDir": "dist"
-        }
-      ]
-]
-  
+      "@semantic-release/npm",
+      {
+        "npmPublish": true,
+        "pkgRoot": "dist/ng-storage"
+      }
+    ],
+    "@semantic-release/git"
+  ]
 }
