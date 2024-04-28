@@ -11,32 +11,24 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20' 
 
       - name: Install dependencies
-        run: npm install
-        
-      - name: Disable Husky Hooks
-        run: export HUSKY_SKIP_HOOKS=1
+        run: npm ci
 
       - name: Build the package
         run: npm run build 
 
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v2
+        uses: cycjimmy/semantic-release-action@v4
         with:
           semantic_version: '18'
           dry_run: 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish to npm
-        run: npm publish
-        env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
