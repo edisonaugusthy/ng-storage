@@ -1,6 +1,25 @@
 {
   "name": "ng7-storage",
   "version": "0.0.0",
+  "author": "Edison Augusthy",
+  "license": "MIT",
+  "description": "An Angular service for browser session storage management with optional base64 encryption/decryption.",
+  "keywords": [
+    "Angular Storage",
+    "ng-storage",
+    "ng7-storage",
+    "cookielss",
+    "Storage",
+    "browser Storage",
+    "Session Storage",
+    "angular",
+    "session storage",
+    "data storage",
+    "encryption",
+    "base64",
+    "ng7",
+    "session management"
+  ],
   "peerDependencies": {
     "@angular/common": "^17.3.0",
     "@angular/core": "^17.3.0"

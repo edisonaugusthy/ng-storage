@@ -1,89 +1,130 @@
+
 # ng7-storage
 
-Share Data among multiple components in angular using browser session storage
+**ng7-storage** is an Angular service for browser session storage management. It provides a simple API to store, retrieve, and clear session-based data, with optional encryption for additional security.
 
-see [Stackblitz Demo](https://stackblitz.com/edit/ng-storage-sample) here
-More on [Github](https://github.com/edisonaugusthy/ng-storage)
+## Features
 
-Angular compatibility
-| Angular Version | package version |
-| -------------------------------- | :-------------: |
-| angular 8 and below | 1.1.4 and below |
-| angular 9 and above(ivy version) | 1.1.5 and above |
-| angular 10 and above|1.1.8 and above |
-| angular 14 and above|1.1.9 and above |
+- Store data in session storage
 
-## Usage steps
+- Optional encryption/decryption using base64 encoding
 
-- Run `npm i ng7-storage --save`
+- Error handling for unsupported browsers and missing keys
 
-- Add to providers array in app module
+- Angular service for easy integration into Angular projects
 
-```ts
-   providers: [
-    NgStorageService
-   ],
+## Installation
+
+To install the package, use npm:
+
+```bash
+npm  install  ng7-storage  --save
 ```
 
-- Then import NgStorageService service `import { NgStorageService } from 'ng7-storage';` in the components that you would like to use
-- Then Initialize `NgStorageService` in the component constructor
+## Usage
 
-  ```ts
-  constructor(private ngStorage: NgStorageService) {
+After installing the package, you can import the `NgStorageService` into your Angular components or services to store, retrieve, and remove data from session storage.
 
-  }
-  ```
+### Importing the Service
 
-follow below methods to set and retrieve data to storage
+To begin, import the service into your Angular component or service:
 
-##### Setting Data
-
-```ts
-this.ngStorage.setData( key: "key", value: "string|object|array", encrypt: boolean );
+```typescript
+import { NgStorageService } from  'ng7-storage';
 ```
 
-> Pass key value pairs to store data , and key should be valid string
+### Storing Data
 
-NB:_`encrypt` is a development onprogress feature and may have issues when setting data that has special characters_
+```typescript
+export  class  ExampleComponent {
 
-#### Getting Data
+constructor(private  storageService:  NgStorageService) {}
 
-eg:
+storeData() {
 
-```js
-  this.ngStorage.getData(key: "key", decrypt?: boolean );
+// Store with optional encryption
+
+this.storageService.setData("user", { name: "John Doe", age: 30 }, true);
+
+}
+
+}
+
 ```
 
-> Use `getData` method to retrieve data, pass `key` of the item. pass `decrypt` as `true` if you have encrypted the data
+### Retrieving Data
 
-#### Remove Data
+```typescript
+export  class  ExampleComponent {
 
-For removing data, we can either remove by a single key or we can remove all data at once
+constructor(private  storageService:  NgStorageService) {}
 
-- `removeData` method is used remove single item based on key
-- `removeAll` method remove all data stored
+getData() {
 
-Examples :
+// Retrieve with optional decryption
 
-removeData : `this.ngStorage.removeData('key')`
+const  userData  =  this.storageService.getData("user", true);
 
-removeAll : `this.ngStorage.removeAll()`
+console.log("Retrieved data:", userData);
 
-#### All Available methods
+}
 
-```ts
-setData();
-getData();
-removeData();
-removeAll();
+}
 ```
+
+### Removing Data
+
+```typescript
+
+export  class  ExampleComponent {
+
+constructor(private  storageService:  NgStorageService) {}
+
+clearData() {
+// Remove specific data
+this.storageService.removeData('user');
+// Or clear all data
+this.storageService.removeAll();
+}
+}
+```
+
+## Error Handling
+
+- The `NgStorageService` throws an error if the browser does not support session storage.
+
+- An error is thrown if a key is invalid or missing when storing data.
+
+## API Documentation
+
+- `setData(key: string, value: any, encrypt?: boolean): boolean`
+
+   > Stores data under the specified key in session storage with optional encryption.
+
+- `getData(key: string, decrypt?: boolean): any`
+
+    > Retrieves data from session storage with optional decryption.
+
+- `removeData(key: string): void`
+
+   > Removes the data associated with the specified key.
+
+- `removeAll(): void`
+
+   > Clears all session storage data.
+
+License
+
+This package is licensed under the MIT License. See the license file for more details.
 
 ## Author 🔮
 
 <table>
-  <tr>
-    <td align="center"><a href="https://github.com/edisonaugusthy"><img src="https://github.com/edisonaugusthy.png?size=100" width="100px;" alt="Edison"/><br /><sub><b>Edison Augusthy</b></sub></a><br /><a href="https://github.com/edisonaugusthy/ng-storage/commits?author=edisonaugusthy" title="Edison">💻</a></td>
 
-  </tr>
+<tr>
+
+<td  align="center"><a  href="https://github.com/edisonaugusthy"><img  src="https://github.com/edisonaugusthy.png?size=100"  width="100px;"  alt="Edison"/><br /><sub><b>Edison Augusthy</b></sub></a><br /><a  href="https://github.com/edisonaugusthy/ng-storage/commits?author=edisonaugusthy"  title="Edison">💻</a></td>
+
+</tr>
 
 </table>
