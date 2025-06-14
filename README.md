@@ -1,413 +1,541 @@
-# ng7-storage Documentation
+# NgStorageService
 
-**An Angular service for browser session storage management with optional base64 encryption/decryption**
+[![npm version](https://badge.fury.io/js/ng-storage-service.svg)](https://badge.fury.io/js/ng-storage-service)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Angular](https://img.shields.io/badge/Angular-19%2B-red.svg)](https://angular.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.typescriptlang.org/)
 
----
+🚀 **A modern, reactive Angular service for browser storage management with optional encryption, TTL, and change notifications.**
 
-## Table of Contents
+## ✨ Features
 
-1. [Overview](#overview)
-2. [Features](#features)
-3. [Installation](#installation)
-4. [Quick Start](#quick-start)
-5. [API Reference](#api-reference)
-6. [Usage Examples](#usage-examples)
-7. [Error Handling](#error-handling)
-8. [Security Considerations](#security-considerations)
-9. [Browser Compatibility](#browser-compatibility)
-10. [Troubleshooting](#troubleshooting)
-11. [License](#license)
+- 🔄 **Reactive State Management** - Built with Angular signals and RxJS observables
+- 🔐 **Optional Encryption** - Base64 encoding for sensitive data
+- ⏰ **TTL Support** - Automatic data expiration
+- 📡 **Change Notifications** - Watch for storage changes in real-time
+- 🏪 **Dual Storage Support** - localStorage and sessionStorage
+- 🎯 **Type Safety** - Full TypeScript support with generics
+- 🧹 **Auto Cleanup** - Automatic removal of expired items
+- 📊 **Storage Statistics** - Monitor usage and performance
+- 🔧 **Configurable** - Extensive configuration options
+- ✅ **Well Tested** - Comprehensive test suite with Jest
 
----
-
-## Overview
-
-`ng7-storage` is a lightweight Angular service designed to simplify browser session storage management. It provides a clean, intuitive API for storing, retrieving, and managing session-based data with optional base64 encryption for enhanced security.
-
-**Key Benefits:**
-
-- Simple and intuitive API
-- Optional data encryption/decryption
-- Built-in error handling
-- Type-safe implementation
-- Zero dependencies beyond Angular
-- Lightweight footprint
-
----
-
-## Features
-
-### Core Features
-
-- ✅ **Session Storage Management** - Store, retrieve, and clear session-based data
-- ✅ **Optional Encryption** - Secure data with base64 encoding
-- ✅ **Error Handling** - Comprehensive error management for unsupported browsers
-- ✅ **Type Safety** - Full TypeScript support
-- ✅ **Angular Integration** - Injectable service for seamless Angular integration
-
-### Storage Operations
-
-- Store data with or without encryption
-- Retrieve data with automatic decryption
-- Remove specific storage items
-- Clear all session storage data
-- Validate storage availability
-
----
-
-## Installation
-
-### Using npm
+## 📦 Installation
 
 ```bash
-npm install ng7-storage --save
+npm install ng-storage-service
 ```
 
-### Using yarn
+## 🚀 Quick Start
 
-```bash
-yarn add ng7-storage
-```
-
----
-
-## Quick Start
-
-### 1. Import the Service
+### Basic Setup
 
 ```typescript
-import { NgStorageService } from "ng7-storage";
+// app.config.ts
+import { ApplicationConfig } from "@angular/core";
+import { NgStorageService } from "ng-storage-service";
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    {
+      provide: NgStorageService,
+      useFactory: () =>
+        new NgStorageService({
+          prefix: "myapp",
+          storageType: "localStorage",
+          defaultTTL: 60, // 1 hour
+          enableLogging: false,
+        }),
+    },
+  ],
+};
 ```
 
-### 2. Inject in Component/Service
+### Component Usage
 
 ```typescript
 import { Component, inject } from "@angular/core";
-import { NgStorageService } from "ng7-storage";
+import { NgStorageService } from "ng-storage-service";
 
 @Component({
   selector: "app-example",
-  templateUrl: "./example.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div>
+      <input [(ngModel)]="username" placeholder="Username" />
+      <button (click)="saveUser()">Save</button>
+      <button (click)="loadUser()">Load</button>
+      <p>Current user: {{ currentUser() || "None" }}</p>
+    </div>
+  `,
 })
 export class ExampleComponent {
-  readonly #storageService = inject(NgStorageService);
+  private storage = inject(NgStorageService);
+
+  username = "";
+  currentUser = this.storage.createSignal<string>("currentUser");
+
+  saveUser() {
+    this.storage.setData("currentUser", this.username);
+  }
+
+  loadUser() {
+    const user = this.storage.getData("currentUser");
+    this.username = user || "";
+  }
 }
 ```
 
-### 3. Basic Usage
+## 📚 API Documentation
+
+### Configuration
 
 ```typescript
-// Store data
-this.#storageService.setData("userToken", "abc123");
-
-// Retrieve data
-const token = this.#storageService.getData("userToken");
-
-// Store with encryption
-this.#storageService.setData("sensitive", { password: "secret" }, true);
-
-// Retrieve with decryption
-const sensitive = this.#storageService.getData("sensitive", true);
+interface StorageConfig {
+  prefix?: string; // Storage key prefix (default: 'ng-storage')
+  defaultTTL?: number; // Default TTL in minutes (default: 0 = no expiry)
+  enableLogging?: boolean; // Enable debug logging (default: false)
+  caseSensitive?: boolean; // Case sensitive keys (default: false)
+  storageType?: "localStorage" | "sessionStorage"; // Storage type (default: 'sessionStorage')
+}
 ```
 
----
+### Core Methods
 
-## API Reference
+#### `setData<T>(key: string, value: T, options?): boolean`
 
-### Methods
-
-#### `setData(key: string, value: any, encrypt?: boolean): boolean`
-
-Stores data in session storage with optional encryption.
-
-**Parameters:**
-
-- `key` (string): The storage key identifier
-- `value` (any): The data to store (objects will be JSON stringified)
-- `encrypt` (boolean, optional): Whether to encrypt the data using base64 encoding
-
-**Returns:**
-
-- `boolean`: `true` if storage was successful, `false` otherwise
-
-**Throws:**
-
-- Error if browser doesn't support session storage
-- Error if key is invalid or missing
-
-#### `getData(key: string, decrypt?: boolean): any`
-
-Retrieves data from session storage with optional decryption.
-
-**Parameters:**
-
-- `key` (string): The storage key identifier
-- `decrypt` (boolean, optional): Whether to decrypt the data using base64 decoding
-
-**Returns:**
-
-- `any`: The retrieved data, or `null` if key doesn't exist
-
-#### `removeData(key: string): void`
-
-Removes the data associated with the specified key.
-
-**Parameters:**
-
-- `key` (string): The storage key identifier to remove
-
-#### `removeAll(): void`
-
-Clears all session storage data.
-
----
-
-## Usage Examples
-
-### Basic Data Storage
+Stores data with optional encryption and TTL.
 
 ```typescript
-export class UserComponent {
-  constructor(private storage: NgStorageService) {}
+// Basic usage
+storage.setData("user", { name: "John", age: 30 });
 
-  saveUserPreferences() {
-    const preferences = {
-      theme: "dark",
+// With encryption
+storage.setData("token", "secret-token", { encrypt: true });
+
+// With TTL (expires in 30 minutes)
+storage.setData("cache", data, { ttlMinutes: 30 });
+
+// With both encryption and TTL
+storage.setData("session", userData, {
+  encrypt: true,
+  ttlMinutes: 60,
+});
+```
+
+#### `getData<T>(key: string, options?): T | null`
+
+Retrieves data with optional decryption.
+
+```typescript
+// Basic retrieval
+const user = storage.getData<User>("user");
+
+// With decryption
+const token = storage.getData("token", { decrypt: true });
+
+// With default value
+const theme = storage.getData("theme", { defaultValue: "light" });
+```
+
+#### `removeData(key: string): boolean`
+
+Removes a specific key from storage.
+
+```typescript
+storage.removeData("user");
+```
+
+#### `removeAll(): boolean`
+
+Clears all storage data with the current prefix.
+
+```typescript
+storage.removeAll();
+```
+
+### Reactive Features
+
+#### `createSignal<T>(key: string, defaultValue?): Signal<T | null>`
+
+Creates a reactive signal that automatically updates when storage changes.
+
+```typescript
+const userSignal = storage.createSignal<User>('currentUser');
+
+// Use in template
+@Component({
+  template: `<p>Welcome {{ userSignal()?.name }}!</p>`
+})
+```
+
+#### `watch<T>(key: string): Observable<T | null>`
+
+Watches for changes to a specific key.
+
+```typescript
+storage.watch<string>("theme").subscribe((theme) => {
+  console.log("Theme changed:", theme);
+  document.body.className = theme;
+});
+```
+
+#### `watchAll(): Observable<StorageChangeEvent>`
+
+Watches for all storage changes.
+
+```typescript
+storage.watchAll().subscribe((event) => {
+  console.log(`${event.action} on ${event.key}:`, event.newValue);
+});
+```
+
+#### `watchKeys<T>(keys: string[]): Observable<{key: string, value: T}>`
+
+Watches for changes to multiple specific keys.
+
+```typescript
+storage.watchKeys(["user", "settings"]).subscribe(({ key, value }) => {
+  console.log(`${key} changed:`, value);
+});
+```
+
+#### `watchPattern<T>(pattern: string): Observable<{key: string, value: T}>`
+
+Watches for changes to keys matching a pattern.
+
+```typescript
+// Watch all user-related keys
+storage.watchPattern("user.*").subscribe(({ key, value }) => {
+  console.log(`User data ${key} changed:`, value);
+});
+```
+
+### Advanced Methods
+
+#### `updateData<T>(key: string, updateFn: (current: T | null) => T, options?): boolean`
+
+Updates existing data using a function.
+
+```typescript
+// Increment counter
+storage.updateData("counter", (current) => (current || 0) + 1);
+
+// Update user profile
+storage.updateData("user", (current) => ({
+  ...current,
+  lastLogin: new Date(),
+}));
+```
+
+#### `setIfNotExists<T>(key: string, value: T, options?): boolean`
+
+Sets data only if the key doesn't already exist.
+
+```typescript
+// Set default preferences only if not already set
+storage.setIfNotExists("preferences", defaultPreferences);
+```
+
+#### `hasKey(key: string): boolean`
+
+Checks if a key exists in storage.
+
+```typescript
+if (storage.hasKey("user")) {
+  console.log("User is logged in");
+}
+```
+
+#### `getKeys(): string[]`
+
+Gets all keys managed by this service.
+
+```typescript
+const allKeys = storage.getKeys();
+console.log("Stored keys:", allKeys);
+```
+
+#### `getStorageStats(): StorageStats`
+
+Gets storage usage statistics.
+
+```typescript
+const stats = storage.getStorageStats();
+console.log(`Using ${stats.totalSize} bytes for ${stats.totalItems} items`);
+```
+
+## 🏭 Factory Methods
+
+### Static Factory Methods
+
+```typescript
+// Create localStorage instance
+const localStorage = NgStorageService.localStorage({
+  prefix: "app-local",
+  defaultTTL: 0, // Persistent
+});
+
+// Create sessionStorage instance
+const sessionStorage = NgStorageService.sessionStorage({
+  prefix: "app-session",
+  defaultTTL: 60, // 1 hour
+});
+
+// Create with specific storage type
+const customStorage = NgStorageService.withStorageType({
+  storageType: "localStorage",
+  prefix: "custom",
+});
+```
+
+## 🔧 Configuration Examples
+
+### Application-Wide Configuration
+
+```typescript
+// storage.config.ts
+import { InjectionToken } from "@angular/core";
+import { StorageConfig } from "ng-storage-service";
+
+export const STORAGE_CONFIG = new InjectionToken<StorageConfig>("StorageConfig");
+
+export const DEFAULT_STORAGE_CONFIG: StorageConfig = {
+  prefix: "myapp",
+  defaultTTL: 60,
+  enableLogging: false,
+  caseSensitive: false,
+  storageType: "localStorage",
+};
+
+// app.config.ts
+import { ApplicationConfig } from "@angular/core";
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    { provide: STORAGE_CONFIG, useValue: DEFAULT_STORAGE_CONFIG },
+    {
+      provide: NgStorageService,
+      useFactory: (config: StorageConfig) => new NgStorageService(config),
+      deps: [STORAGE_CONFIG],
+    },
+  ],
+};
+```
+
+### Environment-Based Configuration
+
+```typescript
+// environments/environment.ts
+export const environment = {
+  production: false,
+  storage: {
+    prefix: "myapp-dev",
+    enableLogging: true,
+    storageType: "sessionStorage" as const,
+  },
+};
+
+// environments/environment.prod.ts
+export const environment = {
+  production: true,
+  storage: {
+    prefix: "myapp",
+    enableLogging: false,
+    storageType: "localStorage" as const,
+  },
+};
+```
+
+### Multiple Storage Instances
+
+```typescript
+// app.config.ts
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // User data storage (persistent)
+    {
+      provide: "UserStorage",
+      useFactory: () =>
+        NgStorageService.localStorage({
+          prefix: "user-data",
+          defaultTTL: 0,
+        }),
+    },
+
+    // Cache storage (with TTL)
+    {
+      provide: "CacheStorage",
+      useFactory: () =>
+        NgStorageService.localStorage({
+          prefix: "app-cache",
+          defaultTTL: 60,
+        }),
+    },
+
+    // Temporary storage (session only)
+    {
+      provide: "TempStorage",
+      useFactory: () =>
+        NgStorageService.sessionStorage({
+          prefix: "temp-data",
+          defaultTTL: 30,
+        }),
+    },
+  ],
+};
+```
+
+## 💡 Usage Examples
+
+### User Authentication Service
+
+```typescript
+@Injectable({ providedIn: "root" })
+export class AuthService {
+  private storage = inject(NgStorageService);
+
+  login(credentials: LoginCredentials): Observable<AuthResult> {
+    return this.http.post<AuthResult>("/api/login", credentials).pipe(
+      tap((result) => {
+        // Store encrypted auth data with 8-hour TTL
+        this.storage.setData("auth", result, {
+          encrypt: true,
+          ttlMinutes: 8 * 60,
+        });
+      })
+    );
+  }
+
+  getAuthData(): AuthResult | null {
+    return this.storage.getData("auth", { decrypt: true });
+  }
+
+  isAuthenticated(): boolean {
+    return this.storage.hasKey("auth");
+  }
+
+  logout(): void {
+    this.storage.removeData("auth");
+  }
+}
+```
+
+### User Preferences Service
+
+```typescript
+@Injectable({ providedIn: "root" })
+export class PreferencesService {
+  private storage = inject(NgStorageService);
+
+  // Reactive theme signal
+  theme = this.storage.createSignal("theme", "light");
+
+  // Watch for theme changes
+  theme$ = this.storage.watch<string>("theme");
+
+  setTheme(theme: string): void {
+    this.storage.setData("theme", theme);
+  }
+
+  getPreferences(): UserPreferences {
+    return this.storage.getData("preferences") || this.getDefaults();
+  }
+
+  updatePreference(key: keyof UserPreferences, value: any): void {
+    this.storage.updateData("preferences", (current) => ({
+      ...this.getDefaults(),
+      ...current,
+      [key]: value,
+    }));
+  }
+
+  private getDefaults(): UserPreferences {
+    return {
+      theme: "light",
       language: "en",
       notifications: true,
     };
-
-    this.storage.setData("userPrefs", preferences);
-  }
-
-  loadUserPreferences() {
-    const preferences = this.storage.getData("userPrefs");
-    if (preferences) {
-      console.log("User preferences:", preferences);
-    }
   }
 }
 ```
 
-### Encrypted Data Storage
+### Shopping Cart Service
 
 ```typescript
-export class AuthComponent {
-  constructor(private storage: NgStorageService) {}
-
-  storeAuthToken(token: string) {
-    // Store encrypted token
-    this.storage.setData("authToken", token, true);
-  }
-
-  getAuthToken(): string | null {
-    // Retrieve and decrypt token
-    return this.storage.getData("authToken", true);
-  }
-
-  logout() {
-    // Remove specific auth data
-    this.storage.removeData("authToken");
-    this.storage.removeData("refreshToken");
-  }
-}
-```
-
-### Shopping Cart Example
-
-```typescript
+@Injectable({ providedIn: "root" })
 export class CartService {
-  constructor(private storage: NgStorageService) {}
+  private storage = inject(NgStorageService);
 
-  addToCart(item: CartItem) {
-    let cart = this.getCart();
-    cart.push(item);
-    this.storage.setData("shoppingCart", cart);
+  // Reactive cart items
+  items = this.storage.createSignal<CartItem[]>("cart", []);
+
+  // Computed total
+  total = computed(() => this.items().reduce((sum, item) => sum + item.price * item.quantity, 0));
+
+  addItem(product: Product, quantity = 1): void {
+    this.storage.updateData("cart", (current: CartItem[] = []) => {
+      const existing = current.find((item) => item.id === product.id);
+      if (existing) {
+        existing.quantity += quantity;
+        return [...current];
+      } else {
+        return [...current, { ...product, quantity }];
+      }
+    });
   }
 
-  getCart(): CartItem[] {
-    return this.storage.getData("shoppingCart") || [];
+  removeItem(productId: string): void {
+    this.storage.updateData("cart", (current: CartItem[] = []) => current.filter((item) => item.id !== productId));
   }
 
-  clearCart() {
-    this.storage.removeData("shoppingCart");
-  }
-
-  getCartTotal(): number {
-    const cart = this.getCart();
-    return cart.reduce((total, item) => total + item.price, 0);
-  }
-}
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-}
-```
-
-### Form Data Persistence
-
-```typescript
-export class FormComponent {
-  formData: any = {};
-
-  constructor(private storage: NgStorageService) {
-    this.loadDraft();
-  }
-
-  onFormChange() {
-    // Auto-save form data
-    this.storage.setData("formDraft", this.formData);
-  }
-
-  loadDraft() {
-    const draft = this.storage.getData("formDraft");
-    if (draft) {
-      this.formData = draft;
-    }
-  }
-
-  submitForm() {
-    // Submit logic here
-
-    // Clear draft after successful submission
-    this.storage.removeData("formDraft");
+  clear(): void {
+    this.storage.removeData("cart");
   }
 }
 ```
 
-### Session Management
+## 🔐 Security Considerations
 
-```typescript
-export class SessionManager {
-  constructor(private storage: NgStorageService) {}
-
-  createSession(userId: string, sessionData: any) {
-    const session = {
-      userId,
-      timestamp: Date.now(),
-      data: sessionData,
-    };
-
-    // Store encrypted session
-    this.storage.setData("userSession", session, true);
-  }
-
-  getSession() {
-    return this.storage.getData("userSession", true);
-  }
-
-  isSessionValid(): boolean {
-    const session = this.getSession();
-    if (!session) return false;
-
-    // Check if session is less than 1 hour old
-    const oneHour = 60 * 60 * 1000;
-    return Date.now() - session.timestamp < oneHour;
-  }
-
-  destroySession() {
-    this.storage.removeAll();
-  }
-}
-```
-
----
-
-## Error Handling
-
-The service includes comprehensive error handling:
-
-### Browser Support Check
-
-```typescript
-try {
-  this.storage.setData("test", "value");
-} catch (error) {
-  console.error("Session storage not supported:", error);
-  // Fallback logic here
-}
-```
-
-### Invalid Key Handling
-
-```typescript
-try {
-  this.storage.setData("", "value"); // Will throw error
-} catch (error) {
-  console.error("Invalid key provided:", error);
-}
-```
-
-### Custom Error Handler
-
-```typescript
-export class SafeStorageService {
-  constructor(private storage: NgStorageService) {}
-
-  safeSetData(key: string, value: any, encrypt = false): boolean {
-    try {
-      return this.storage.setData(key, value, encrypt);
-    } catch (error) {
-      console.warn("Storage operation failed:", error);
-      return false;
-    }
-  }
-
-  safeGetData(key: string, decrypt = false): any {
-    try {
-      return this.storage.getData(key, decrypt);
-    } catch (error) {
-      console.warn("Retrieval operation failed:", error);
-      return null;
-    }
-  }
-}
-```
-
----
-
-## Security Considerations
-
-### Base64 Encoding Limitations
-
-**Important:** The optional encryption feature uses base64 encoding, which is **not** true encryption but rather encoding for obfuscation.
-
-```typescript
-// This provides obfuscation, not cryptographic security
-this.storage.setData("data", "sensitive", true);
-```
+> **Important:** The encryption feature uses base64 encoding, which provides **obfuscation**, not cryptographic security.
 
 ### Best Practices
 
-1. **Don't store highly sensitive data** like passwords or credit card numbers
-2. **Use HTTPS** to protect data in transit
-3. **Implement proper session timeouts**
-4. **Validate data** when retrieving from storage
+- ❌ **Don't store** highly sensitive data (passwords, credit cards)
+- ✅ **Do use** HTTPS to protect data in transit
+- ✅ **Do implement** proper session timeouts
+- ✅ **Do validate** data when retrieving from storage
+- ✅ **Do use** TTL for temporary sensitive data
 
 ### Enhanced Security Example
 
 ```typescript
+@Injectable({ providedIn: "root" })
 export class SecureStorageService {
-  constructor(private storage: NgStorageService) {}
+  private storage = inject(NgStorageService);
 
-  storeWithExpiry(key: string, value: any, ttlMinutes: number) {
+  storeWithExpiry<T>(key: string, value: T, ttlMinutes: number): void {
     const item = {
       value,
       expiry: Date.now() + ttlMinutes * 60 * 1000,
+      checksum: this.generateChecksum(JSON.stringify(value)),
     };
 
-    this.storage.setData(key, item, true);
+    this.storage.setData(key, item, { encrypt: true });
   }
 
-  getWithExpiry(key: string): any {
-    const item = this.storage.getData(key, true);
+  getWithValidation<T>(key: string): T | null {
+    const item = this.storage.getData(key, { decrypt: true });
 
     if (!item) return null;
 
+    // Validate checksum
+    const expectedChecksum = this.generateChecksum(JSON.stringify(item.value));
+    if (item.checksum !== expectedChecksum) {
+      this.storage.removeData(key);
+      throw new Error("Data integrity check failed");
+    }
+
+    // Check expiry
     if (Date.now() > item.expiry) {
       this.storage.removeData(key);
       return null;
@@ -415,140 +543,144 @@ export class SecureStorageService {
 
     return item.value;
   }
-}
-```
 
----
-
-## Browser Compatibility
-
-### Supported Browsers
-
-- ✅ Chrome 4+
-- ✅ Firefox 3.5+
-- ✅ Safari 4+
-- ✅ IE 8+
-- ✅ Edge (all versions)
-- ✅ Opera 10.5+
-
-### Feature Detection
-
-```typescript
-export class CompatibilityChecker {
-  static isSessionStorageSupported(): boolean {
-    try {
-      const test = "__session_storage_test__";
-      sessionStorage.setItem(test, "test");
-      sessionStorage.removeItem(test);
-      return true;
-    } catch (error) {
-      return false;
-    }
+  private generateChecksum(data: string): string {
+    // Simple checksum - use crypto library in production
+    return btoa(data).slice(0, 8);
   }
 }
 ```
 
----
+## 🌐 Browser Compatibility
 
-## Troubleshooting
+| Browser | Version | localStorage | sessionStorage |
+| ------- | ------- | ------------ | -------------- |
+| Chrome  | 4+      | ✅           | ✅             |
+| Firefox | 3.5+    | ✅           | ✅             |
+| Safari  | 4+      | ✅           | ✅             |
+| Edge    | All     | ✅           | ✅             |
+| IE      | 8+      | ✅           | ✅             |
 
-### Common Issues
+## 🧪 Testing
 
-#### 1. "Session storage not supported" Error
+### Running Tests
 
-**Cause:** Browser doesn't support session storage or it's disabled
+```bash
+# Install dependencies
+npm install
 
-**Solution:**
+# Run tests
+npm test
 
-```typescript
-if (CompatibilityChecker.isSessionStorageSupported()) {
-  this.storage.setData("key", "value");
-} else {
-  // Use alternative storage or fallback
-  this.useAlternativeStorage("key", "value");
-}
+# Run tests with coverage
+npm test -- --coverage
+
+# Watch mode
+npm test -- --watch
 ```
 
-#### 2. Data Not Persisting
-
-**Cause:** Session storage is cleared when tab/window closes
-
-**Solution:** Use localStorage wrapper if persistence across sessions is needed
-
-#### 3. Quota Exceeded Error
-
-**Cause:** Session storage limit reached (usually 5-10MB)
-
-**Solution:**
+### Test Example
 
 ```typescript
-try {
-  this.storage.setData("key", largeData);
-} catch (error) {
-  if (error.name === "QuotaExceededError") {
-    // Clear old data or use compression
-    this.storage.removeAll();
-    this.storage.setData("key", largeData);
-  }
-}
+describe("NgStorageService", () => {
+  let service: NgStorageService;
+
+  beforeEach(() => {
+    service = new NgStorageService();
+  });
+
+  it("should store and retrieve data", () => {
+    service.setData("test", "value");
+    expect(service.getData("test")).toBe("value");
+  });
+
+  it("should handle encrypted data", () => {
+    service.setData("secret", "data", { encrypt: true });
+    expect(service.getData("secret", { decrypt: true })).toBe("data");
+  });
+
+  it("should emit change events", (done) => {
+    service.watch("key").subscribe((value) => {
+      expect(value).toBe("value");
+      done();
+    });
+
+    service.setData("key", "value");
+  });
+});
 ```
 
-#### 4. Encryption/Decryption Issues
+## 🤝 Contributing
 
-**Cause:** Mismatch between encrypt/decrypt flags
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-**Solution:**
+### Development Setup
 
-```typescript
-// Always match encrypt/decrypt flags
-this.storage.setData("key", "value", true); // encrypted
-const value = this.storage.getData("key", true); // decrypted
+```bash
+# Clone the repository
+git clone https://github.com/your-username/ng-storage-service.git
+
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Build the library
+npm run build
 ```
 
-### Debug Mode
+### Contribution Guidelines
 
-```typescript
-export class DebugStorageService {
-  constructor(private storage: NgStorageService) {}
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Write tests for your changes
+4. Ensure all tests pass (`npm test`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
-  debugSetData(key: string, value: any, encrypt = false) {
-    console.log(`Setting data for key: ${key}`, { value, encrypt });
-    const result = this.storage.setData(key, value, encrypt);
-    console.log(`Storage result: ${result}`);
-    return result;
-  }
+## 📝 Changelog
 
-  debugGetData(key: string, decrypt = false) {
-    console.log(`Getting data for key: ${key}`, { decrypt });
-    const result = this.storage.getData(key, decrypt);
-    console.log(`Retrieved data:`, result);
-    return result;
-  }
-}
-```
+### v2.0.0
+
+- ✨ Added Angular 18+ signals support
+- ✨ Added reactive change notifications
+- ✨ Added dual storage support (localStorage/sessionStorage)
+- ✨ Added TTL functionality
+- ✨ Added comprehensive test suite
+- 🐛 Fixed decryption bugs
+- 🔧 Improved TypeScript support
+
+### v1.0.0
+
+- 🎉 Initial release
+- ✨ Basic storage operations
+- ✨ Base64 encryption
+- ✨ Angular service integration
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Angular team for the amazing framework
+- RxJS team for reactive programming utilities
+- All contributors and users of this library
+
+## 📞 Support
+
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/ng-storage-service/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/ng-storage-service/discussions)
+- 📧 **Email**: your-email@example.com
 
 ---
 
-## License
+<div align="center">
 
-This package is licensed under the MIT License.
+**Made with ❤️ for the Angular community**
 
----
+[⭐ Star this repo](https://github.com/your-username/ng-storage-service) | [🍴 Fork it](https://github.com/your-username/ng-storage-service/fork) | [📋 Report Issues](https://github.com/your-username/ng-storage-service/issues)
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit issues and pull requests to the [GitHub repository](https://github.com/edisonaugusthy/ng-storage).
-
-### Author
-
-**Edison Augusthy** - [GitHub Profile](https://github.com/edisonaugusthy)
-
----
-
-## Related Libraries
-
-If you need additional features, consider these alternatives:
-
-- **ngx-webstorage** - More comprehensive storage solution with decorators
-- **angular-web-storage** - Storage with expiration support
-- **@ngxs/storage-plugin** - For NGXS state management
+</div>
