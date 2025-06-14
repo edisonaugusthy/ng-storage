@@ -1,130 +1,554 @@
+# ng7-storage Documentation
 
-# ng7-storage
+**An Angular service for browser session storage management with optional base64 encryption/decryption**
 
-**ng7-storage** is an Angular service for browser session storage management. It provides a simple API to store, retrieve, and clear session-based data, with optional encryption for additional security.
+---
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Quick Start](#quick-start)
+5. [API Reference](#api-reference)
+6. [Usage Examples](#usage-examples)
+7. [Error Handling](#error-handling)
+8. [Security Considerations](#security-considerations)
+9. [Browser Compatibility](#browser-compatibility)
+10. [Troubleshooting](#troubleshooting)
+11. [License](#license)
+
+---
+
+## Overview
+
+`ng7-storage` is a lightweight Angular service designed to simplify browser session storage management. It provides a clean, intuitive API for storing, retrieving, and managing session-based data with optional base64 encryption for enhanced security.
+
+**Key Benefits:**
+
+- Simple and intuitive API
+- Optional data encryption/decryption
+- Built-in error handling
+- Type-safe implementation
+- Zero dependencies beyond Angular
+- Lightweight footprint
+
+---
 
 ## Features
 
-- Store data in session storage
+### Core Features
 
-- Optional encryption/decryption using base64 encoding
+- ✅ **Session Storage Management** - Store, retrieve, and clear session-based data
+- ✅ **Optional Encryption** - Secure data with base64 encoding
+- ✅ **Error Handling** - Comprehensive error management for unsupported browsers
+- ✅ **Type Safety** - Full TypeScript support
+- ✅ **Angular Integration** - Injectable service for seamless Angular integration
 
-- Error handling for unsupported browsers and missing keys
+### Storage Operations
 
-- Angular service for easy integration into Angular projects
+- Store data with or without encryption
+- Retrieve data with automatic decryption
+- Remove specific storage items
+- Clear all session storage data
+- Validate storage availability
+
+---
 
 ## Installation
 
-To install the package, use npm:
+### Using npm
 
 ```bash
-npm  install  ng7-storage  --save
+npm install ng7-storage --save
 ```
 
-## Usage
+### Using yarn
 
-After installing the package, you can import the `NgStorageService` into your Angular components or services to store, retrieve, and remove data from session storage.
+```bash
+yarn add ng7-storage
+```
 
-### Importing the Service
+---
 
-To begin, import the service into your Angular component or service:
+## Quick Start
+
+### 1. Import the Service
 
 ```typescript
-import { NgStorageService } from  'ng7-storage';
+import { NgStorageService } from "ng7-storage";
 ```
 
-### Storing Data
+### 2. Inject in Component/Service
 
 ```typescript
-export  class  ExampleComponent {
+import { Component, inject } from "@angular/core";
+import { NgStorageService } from "ng7-storage";
 
-constructor(private  storageService:  NgStorageService) {}
-
-storeData() {
-
-// Store with optional encryption
-
-this.storageService.setData("user", { name: "John Doe", age: 30 }, true);
-
+@Component({
+  selector: "app-example",
+  templateUrl: "./example.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ExampleComponent {
+  readonly #storageService = inject(NgStorageService);
 }
-
-}
-
 ```
 
-### Retrieving Data
+### 3. Basic Usage
 
 ```typescript
-export  class  ExampleComponent {
+// Store data
+this.#storageService.setData("userToken", "abc123");
 
-constructor(private  storageService:  NgStorageService) {}
+// Retrieve data
+const token = this.#storageService.getData("userToken");
 
-getData() {
+// Store with encryption
+this.#storageService.setData("sensitive", { password: "secret" }, true);
 
-// Retrieve with optional decryption
-
-const  userData  =  this.storageService.getData("user", true);
-
-console.log("Retrieved data:", userData);
-
-}
-
-}
+// Retrieve with decryption
+const sensitive = this.#storageService.getData("sensitive", true);
 ```
 
-### Removing Data
+---
+
+## API Reference
+
+### Methods
+
+#### `setData(key: string, value: any, encrypt?: boolean): boolean`
+
+Stores data in session storage with optional encryption.
+
+**Parameters:**
+
+- `key` (string): The storage key identifier
+- `value` (any): The data to store (objects will be JSON stringified)
+- `encrypt` (boolean, optional): Whether to encrypt the data using base64 encoding
+
+**Returns:**
+
+- `boolean`: `true` if storage was successful, `false` otherwise
+
+**Throws:**
+
+- Error if browser doesn't support session storage
+- Error if key is invalid or missing
+
+#### `getData(key: string, decrypt?: boolean): any`
+
+Retrieves data from session storage with optional decryption.
+
+**Parameters:**
+
+- `key` (string): The storage key identifier
+- `decrypt` (boolean, optional): Whether to decrypt the data using base64 decoding
+
+**Returns:**
+
+- `any`: The retrieved data, or `null` if key doesn't exist
+
+#### `removeData(key: string): void`
+
+Removes the data associated with the specified key.
+
+**Parameters:**
+
+- `key` (string): The storage key identifier to remove
+
+#### `removeAll(): void`
+
+Clears all session storage data.
+
+---
+
+## Usage Examples
+
+### Basic Data Storage
 
 ```typescript
+export class UserComponent {
+  constructor(private storage: NgStorageService) {}
 
-export  class  ExampleComponent {
+  saveUserPreferences() {
+    const preferences = {
+      theme: "dark",
+      language: "en",
+      notifications: true,
+    };
 
-constructor(private  storageService:  NgStorageService) {}
+    this.storage.setData("userPrefs", preferences);
+  }
 
-clearData() {
-// Remove specific data
-this.storageService.removeData('user');
-// Or clear all data
-this.storageService.removeAll();
-}
+  loadUserPreferences() {
+    const preferences = this.storage.getData("userPrefs");
+    if (preferences) {
+      console.log("User preferences:", preferences);
+    }
+  }
 }
 ```
+
+### Encrypted Data Storage
+
+```typescript
+export class AuthComponent {
+  constructor(private storage: NgStorageService) {}
+
+  storeAuthToken(token: string) {
+    // Store encrypted token
+    this.storage.setData("authToken", token, true);
+  }
+
+  getAuthToken(): string | null {
+    // Retrieve and decrypt token
+    return this.storage.getData("authToken", true);
+  }
+
+  logout() {
+    // Remove specific auth data
+    this.storage.removeData("authToken");
+    this.storage.removeData("refreshToken");
+  }
+}
+```
+
+### Shopping Cart Example
+
+```typescript
+export class CartService {
+  constructor(private storage: NgStorageService) {}
+
+  addToCart(item: CartItem) {
+    let cart = this.getCart();
+    cart.push(item);
+    this.storage.setData("shoppingCart", cart);
+  }
+
+  getCart(): CartItem[] {
+    return this.storage.getData("shoppingCart") || [];
+  }
+
+  clearCart() {
+    this.storage.removeData("shoppingCart");
+  }
+
+  getCartTotal(): number {
+    const cart = this.getCart();
+    return cart.reduce((total, item) => total + item.price, 0);
+  }
+}
+
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+```
+
+### Form Data Persistence
+
+```typescript
+export class FormComponent {
+  formData: any = {};
+
+  constructor(private storage: NgStorageService) {
+    this.loadDraft();
+  }
+
+  onFormChange() {
+    // Auto-save form data
+    this.storage.setData("formDraft", this.formData);
+  }
+
+  loadDraft() {
+    const draft = this.storage.getData("formDraft");
+    if (draft) {
+      this.formData = draft;
+    }
+  }
+
+  submitForm() {
+    // Submit logic here
+
+    // Clear draft after successful submission
+    this.storage.removeData("formDraft");
+  }
+}
+```
+
+### Session Management
+
+```typescript
+export class SessionManager {
+  constructor(private storage: NgStorageService) {}
+
+  createSession(userId: string, sessionData: any) {
+    const session = {
+      userId,
+      timestamp: Date.now(),
+      data: sessionData,
+    };
+
+    // Store encrypted session
+    this.storage.setData("userSession", session, true);
+  }
+
+  getSession() {
+    return this.storage.getData("userSession", true);
+  }
+
+  isSessionValid(): boolean {
+    const session = this.getSession();
+    if (!session) return false;
+
+    // Check if session is less than 1 hour old
+    const oneHour = 60 * 60 * 1000;
+    return Date.now() - session.timestamp < oneHour;
+  }
+
+  destroySession() {
+    this.storage.removeAll();
+  }
+}
+```
+
+---
 
 ## Error Handling
 
-- The `NgStorageService` throws an error if the browser does not support session storage.
+The service includes comprehensive error handling:
 
-- An error is thrown if a key is invalid or missing when storing data.
+### Browser Support Check
 
-## API Documentation
+```typescript
+try {
+  this.storage.setData("test", "value");
+} catch (error) {
+  console.error("Session storage not supported:", error);
+  // Fallback logic here
+}
+```
 
-- `setData(key: string, value: any, encrypt?: boolean): boolean`
+### Invalid Key Handling
 
-   > Stores data under the specified key in session storage with optional encryption.
+```typescript
+try {
+  this.storage.setData("", "value"); // Will throw error
+} catch (error) {
+  console.error("Invalid key provided:", error);
+}
+```
 
-- `getData(key: string, decrypt?: boolean): any`
+### Custom Error Handler
 
-    > Retrieves data from session storage with optional decryption.
+```typescript
+export class SafeStorageService {
+  constructor(private storage: NgStorageService) {}
 
-- `removeData(key: string): void`
+  safeSetData(key: string, value: any, encrypt = false): boolean {
+    try {
+      return this.storage.setData(key, value, encrypt);
+    } catch (error) {
+      console.warn("Storage operation failed:", error);
+      return false;
+    }
+  }
 
-   > Removes the data associated with the specified key.
+  safeGetData(key: string, decrypt = false): any {
+    try {
+      return this.storage.getData(key, decrypt);
+    } catch (error) {
+      console.warn("Retrieval operation failed:", error);
+      return null;
+    }
+  }
+}
+```
 
-- `removeAll(): void`
+---
 
-   > Clears all session storage data.
+## Security Considerations
 
-License
+### Base64 Encoding Limitations
 
-This package is licensed under the MIT License. See the license file for more details.
+**Important:** The optional encryption feature uses base64 encoding, which is **not** true encryption but rather encoding for obfuscation.
 
-## Author 🔮
+```typescript
+// This provides obfuscation, not cryptographic security
+this.storage.setData("data", "sensitive", true);
+```
 
-<table>
+### Best Practices
 
-<tr>
+1. **Don't store highly sensitive data** like passwords or credit card numbers
+2. **Use HTTPS** to protect data in transit
+3. **Implement proper session timeouts**
+4. **Validate data** when retrieving from storage
 
-<td  align="center"><a  href="https://github.com/edisonaugusthy"><img  src="https://github.com/edisonaugusthy.png?size=100"  width="100px;"  alt="Edison"/><br /><sub><b>Edison Augusthy</b></sub></a><br /><a  href="https://github.com/edisonaugusthy/ng-storage/commits?author=edisonaugusthy"  title="Edison">💻</a></td>
+### Enhanced Security Example
 
-</tr>
+```typescript
+export class SecureStorageService {
+  constructor(private storage: NgStorageService) {}
 
-</table>
+  storeWithExpiry(key: string, value: any, ttlMinutes: number) {
+    const item = {
+      value,
+      expiry: Date.now() + ttlMinutes * 60 * 1000,
+    };
+
+    this.storage.setData(key, item, true);
+  }
+
+  getWithExpiry(key: string): any {
+    const item = this.storage.getData(key, true);
+
+    if (!item) return null;
+
+    if (Date.now() > item.expiry) {
+      this.storage.removeData(key);
+      return null;
+    }
+
+    return item.value;
+  }
+}
+```
+
+---
+
+## Browser Compatibility
+
+### Supported Browsers
+
+- ✅ Chrome 4+
+- ✅ Firefox 3.5+
+- ✅ Safari 4+
+- ✅ IE 8+
+- ✅ Edge (all versions)
+- ✅ Opera 10.5+
+
+### Feature Detection
+
+```typescript
+export class CompatibilityChecker {
+  static isSessionStorageSupported(): boolean {
+    try {
+      const test = "__session_storage_test__";
+      sessionStorage.setItem(test, "test");
+      sessionStorage.removeItem(test);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+}
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. "Session storage not supported" Error
+
+**Cause:** Browser doesn't support session storage or it's disabled
+
+**Solution:**
+
+```typescript
+if (CompatibilityChecker.isSessionStorageSupported()) {
+  this.storage.setData("key", "value");
+} else {
+  // Use alternative storage or fallback
+  this.useAlternativeStorage("key", "value");
+}
+```
+
+#### 2. Data Not Persisting
+
+**Cause:** Session storage is cleared when tab/window closes
+
+**Solution:** Use localStorage wrapper if persistence across sessions is needed
+
+#### 3. Quota Exceeded Error
+
+**Cause:** Session storage limit reached (usually 5-10MB)
+
+**Solution:**
+
+```typescript
+try {
+  this.storage.setData("key", largeData);
+} catch (error) {
+  if (error.name === "QuotaExceededError") {
+    // Clear old data or use compression
+    this.storage.removeAll();
+    this.storage.setData("key", largeData);
+  }
+}
+```
+
+#### 4. Encryption/Decryption Issues
+
+**Cause:** Mismatch between encrypt/decrypt flags
+
+**Solution:**
+
+```typescript
+// Always match encrypt/decrypt flags
+this.storage.setData("key", "value", true); // encrypted
+const value = this.storage.getData("key", true); // decrypted
+```
+
+### Debug Mode
+
+```typescript
+export class DebugStorageService {
+  constructor(private storage: NgStorageService) {}
+
+  debugSetData(key: string, value: any, encrypt = false) {
+    console.log(`Setting data for key: ${key}`, { value, encrypt });
+    const result = this.storage.setData(key, value, encrypt);
+    console.log(`Storage result: ${result}`);
+    return result;
+  }
+
+  debugGetData(key: string, decrypt = false) {
+    console.log(`Getting data for key: ${key}`, { decrypt });
+    const result = this.storage.getData(key, decrypt);
+    console.log(`Retrieved data:`, result);
+    return result;
+  }
+}
+```
+
+---
+
+## License
+
+This package is licensed under the MIT License.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues and pull requests to the [GitHub repository](https://github.com/edisonaugusthy/ng-storage).
+
+### Author
+
+**Edison Augusthy** - [GitHub Profile](https://github.com/edisonaugusthy)
+
+---
+
+## Related Libraries
+
+If you need additional features, consider these alternatives:
+
+- **ngx-webstorage** - More comprehensive storage solution with decorators
+- **angular-web-storage** - Storage with expiration support
+- **@ngxs/storage-plugin** - For NGXS state management
