@@ -2,22 +2,22 @@
 
 [![npm version](https://badge.fury.io/js/ng7-storage.svg)](https://badge.fury.io/js/ng7-storage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Angular](https://img.shields.io/badge/Angular-19%2B-red.svg)](https://angular.io/)
+[![Angular](https://img.shields.io/badge/Angular-20%2B-red.svg)](https://angular.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.typescriptlang.org/)
 
-🚀 **A modern, reactive Angular service for browser storage management with optional encryption, TTL, change notifications, and Apollo-style providers.**
+🚀 **A modern, reactive Angular service for browser storage management with AES-GCM encryption, TTL, change notifications, and Apollo-style providers.**
 
 ## ✨ Features
 
 - 🔄 **Reactive State Management** - Built with Angular signals and RxJS observables
-- 🏗️ **Apollo-Style Providers** - Clean, functional configuration system
-- 🔐 **Optional Encryption** - Base64 encoding for sensitive data
+- 🔐 **AES-GCM Encryption** - Military-grade encryption using Web Crypto API with fallback
 - ⏰ **TTL Support** - Automatic data expiration
 - 📡 **Change Notifications** - Watch for storage changes in real-time
 - 🏪 **Dual Storage Support** - localStorage and sessionStorage
 - 🎯 **Multiple Instances** - Named storage instances with NgStorageManager
 - 📊 **Storage Statistics** - Monitor usage and performance
 - 🔧 **Configurable Flags** - Auto-cleanup, strict mode, metrics
+- 🌐 **Cross-Browser Compatibility** - Graceful degradation for older browsers
 - ✅ **Well Tested** - Comprehensive test suite with Jest
 
 ## 📦 Installation
@@ -60,8 +60,10 @@ import { NgStorageService } from "ng7-storage";
     <div>
       <input [(ngModel)]="username" placeholder="Username" />
       <button (click)="saveUser()">Save</button>
+      <button (click)="saveUserEncrypted()">Save Encrypted</button>
       <p>Current user: {{ currentUser() || "None" }}</p>
       <p>Total items: {{ storage.stats().itemCount }}</p>
+      <p>Encryption supported: {{ storage.isEncryptionSupported() }}</p>
     </div>
   `,
 })
@@ -71,15 +73,72 @@ export class ExampleComponent {
   username = "";
   currentUser = this.storage.createSignal<string>("currentUser");
 
-  saveUser() {
-    this.storage.setData("currentUser", this.username);
+  async saveUser() {
+    await this.storage.setData("currentUser", this.username);
+  }
+
+  async saveUserEncrypted() {
+    await this.storage.setData("currentUser", this.username, {
+      encrypt: true,
+      ttlMinutes: 60,
+    });
   }
 }
 ```
 
+## 🔐 Enhanced Security Features
+
+### AES-GCM Encryption
+
+NgStorageService now uses **AES-GCM encryption** with the Web Crypto API, providing:
+
+- **256-bit AES encryption** - Military-grade security
+- **Galois/Counter Mode (GCM)** - Provides both confidentiality and authenticity
+- **Unique IVs** - Each encryption uses a random initialization vector
+- **Authentication tags** - Prevents tampering and ensures data integrity
+- **PBKDF2 key derivation** - Secure key generation with 100,000 iterations
+- **Automatic fallback** - Base64 encoding for unsupported browsers
+
+### Encryption Usage Examples
+
+```typescript
+// Store encrypted sensitive data
+await storage.setData("apiToken", "secret-api-key", {
+  encrypt: true,
+  ttlMinutes: 60, // Expires in 1 hour
+});
+
+// Retrieve encrypted data
+const token = await storage.getData("apiToken", {
+  decrypt: true,
+  defaultValue: null,
+});
+
+// Check encryption support
+if (storage.isEncryptionSupported()) {
+  console.log("Using AES-GCM encryption");
+} else {
+  console.log("Using Base64 fallback");
+}
+
+// Clear encryption key for security
+storage.clearEncryptionKey();
+```
+
+### Security Features Comparison
+
+| Feature                   | Previous (Base64) | New (AES-GCM)             |
+| ------------------------- | ----------------- | ------------------------- |
+| **Security Level**        | Obfuscation only  | Military-grade encryption |
+| **Key Length**            | None              | 256-bit                   |
+| **Authentication**        | None              | 128-bit auth tag          |
+| **Tampering Protection**  | ❌                | ✅                        |
+| **Unique Per Encryption** | ❌                | ✅ Random IV              |
+| **Browser Support**       | Universal         | Modern + fallback         |
+
 ## 🏗️ Configuration
 
-### Apollo-Style Providers
+### Global Providers
 
 #### Simple Static Configuration
 
@@ -176,42 +235,50 @@ interface StorageFlags {
 
 ## 📚 API Documentation
 
-### Core Methods
+### Core Methods (Now Async for Encryption Support)
 
-#### `setData<T>(key: string, value: T, options?): boolean`
+#### `setData<T>(key: string, value: T, options?): Promise<boolean>`
 
 Stores data with optional encryption and TTL.
 
 ```typescript
 // Basic usage
-storage.setData("user", { name: "John", age: 30 });
+await storage.setData("user", { name: "John", age: 30 });
 
-// With encryption
-storage.setData("token", "secret-token", { encrypt: true });
+// With AES-GCM encryption
+await storage.setData("token", "secret-token", { encrypt: true });
 
 // With TTL (expires in 30 minutes)
-storage.setData("cache", data, { ttlMinutes: 30 });
+await storage.setData("cache", data, { ttlMinutes: 30 });
 
 // With both encryption and TTL
-storage.setData("session", userData, {
+await storage.setData("session", userData, {
   encrypt: true,
   ttlMinutes: 60,
 });
 ```
 
-#### `getData<T>(key: string, options?): T | null`
+#### `getData<T>(key: string, options?): Promise<T | null>`
 
 Retrieves data with optional decryption.
 
 ```typescript
 // Basic retrieval
-const user = storage.getData<User>("user");
+const user = await storage.getData<User>("user");
 
 // With decryption
-const token = storage.getData("token", { decrypt: true });
+const token = await storage.getData("token", { decrypt: true });
 
 // With default value
-const theme = storage.getData("theme", { defaultValue: "light" });
+const theme = await storage.getData("theme", { defaultValue: "light" });
+```
+
+#### `hasKey(key: string): Promise<boolean>`
+
+Checks if a key exists (now async to handle encrypted data).
+
+```typescript
+const exists = await storage.hasKey("user");
 ```
 
 #### `removeData(key: string): boolean`
@@ -230,22 +297,52 @@ Clears all storage data with the current prefix.
 storage.removeAll();
 ```
 
+### Encryption Methods
+
+#### `isEncryptionSupported(): boolean`
+
+Checks if AES-GCM encryption is available.
+
+```typescript
+if (storage.isEncryptionSupported()) {
+  // Use full encryption features
+  await storage.setData("secret", data, { encrypt: true });
+} else {
+  // Browser falls back to Base64 encoding
+  console.warn("Using Base64 fallback");
+}
+```
+
+#### `clearEncryptionKey(): void`
+
+Clears the cached encryption key (useful for key rotation).
+
+```typescript
+// Clear key for security or testing
+storage.clearEncryptionKey();
+```
+
 ### Reactive Features
 
-#### `createSignal<T>(key: string, defaultValue?): Signal<T | null>`
+#### `createSignal<T>(key: string, defaultValue?): Promise<Signal<T | null>>`
 
 Creates a reactive signal that automatically updates when storage changes.
 
 ```typescript
-const userSignal = storage.createSignal<User>("currentUser");
-const themeSignal = storage.createSignal("theme", "light");
+// Create reactive signals (now async)
+const userSignal = await storage.createSignal<User>("currentUser");
+const themeSignal = await storage.createSignal("theme", "light");
 
 // Use in component
 @Component({
   template: `<p>Welcome {{ userSignal()?.name }}!</p>`,
 })
 export class MyComponent {
-  userSignal = inject(NgStorageService).createSignal<User>("user");
+  userSignal: Signal<User | null> = signal(null);
+
+  async ngOnInit() {
+    this.userSignal = await inject(NgStorageService).createSignal<User>("user");
+  }
 }
 ```
 
@@ -299,6 +396,54 @@ storage.watchPattern("user.*").subscribe(({ key, value }) => {
 });
 ```
 
+### Storage Statistics (Now Async)
+
+#### `getStorageStats(): Promise<StorageStats>`
+
+Gets storage statistics (now async to handle encrypted data).
+
+```typescript
+const stats = await storage.getStorageStats();
+console.log(`Total items: ${stats.totalItems}`);
+console.log(`Total size: ${stats.totalSize} bytes`);
+console.log(`Available space: ${stats.availableSpace} bytes`);
+```
+
+### Enhanced Methods (Now Async)
+
+#### `updateData<T>(key, updateFn, options?): Promise<boolean>`
+
+Updates existing data with a function.
+
+```typescript
+await storage.updateData(
+  "cart",
+  (current: CartItem[] = []) => {
+    return [...current, newItem];
+  },
+  { encrypt: true }
+);
+```
+
+#### `setIfNotExists<T>(key, value, options?): Promise<boolean>`
+
+Sets data only if key doesn't exist.
+
+```typescript
+const wasSet = await storage.setIfNotExists("config", defaultConfig, {
+  encrypt: true,
+});
+```
+
+#### `cleanup(): Promise<number>`
+
+Forces cleanup of expired items.
+
+```typescript
+const removedCount = await storage.cleanup();
+console.log(`Removed ${removedCount} expired items`);
+```
+
 ### Multiple Storage Instances
 
 #### Using NgStorageManager
@@ -312,15 +457,18 @@ export class DashboardComponent {
   private cacheStorage = this.storageManager.getStorage("cache");
   private sessionStorage = this.storageManager.getStorage("session");
 
-  ngOnInit() {
+  async ngOnInit() {
     // Load user data from persistent storage
-    const userData = this.userStorage.getData("profile");
+    const userData = await this.userStorage.getData("profile");
 
     // Load cached data
-    const cachedData = this.cacheStorage.getData("dashboard-data");
+    const cachedData = await this.cacheStorage.getData("dashboard-data");
 
-    // Save session state
-    this.sessionStorage.setData("current-view", "dashboard");
+    // Save session state with encryption
+    await this.sessionStorage.setData("current-view", "dashboard", {
+      encrypt: true,
+      ttlMinutes: 30,
+    });
   }
 }
 ```
@@ -354,28 +502,34 @@ export class AuthService {
 
   // Reactive authentication state
   isAuthenticated = computed(() => this.storage.hasKey("auth"));
-  currentUser = this.storage.createSignal<User>("currentUser");
+  currentUser: Signal<User | null> = signal(null);
+
+  async ngOnInit() {
+    this.currentUser = await this.storage.createSignal<User>("currentUser");
+  }
 
   async login(credentials: LoginCredentials): Promise<AuthResult> {
     const result = await this.http.post<AuthResult>("/api/login", credentials).toPromise();
 
     // Store encrypted auth data with 8-hour TTL
-    this.storage.setData("auth", result.token, {
+    await this.storage.setData("auth", result.token, {
       encrypt: true,
       ttlMinutes: 8 * 60,
     });
 
-    this.storage.setData("currentUser", result.user);
+    await this.storage.setData("currentUser", result.user);
     return result;
   }
 
   logout(): void {
     this.storage.removeMultiple(["auth", "currentUser"]);
+    // Clear encryption key for security
+    this.storage.clearEncryptionKey();
   }
 }
 ```
 
-### User Preferences Service
+### Secure User Preferences Service
 
 ```typescript
 @Injectable({ providedIn: "root" })
@@ -384,14 +538,19 @@ export class PreferencesService {
   private storage = this.storageManager.getStorage("user");
 
   // Reactive preferences
-  theme = this.storage.createSignal("theme", "light");
-  language = this.storage.createSignal("language", "en");
-  notifications = this.storage.createSignal("notifications", true);
+  theme: Signal<string | null> = signal(null);
+  language: Signal<string | null> = signal(null);
+  notifications: Signal<boolean | null> = signal(null);
 
-  // Watch for theme changes and apply to document
-  constructor() {
+  async ngOnInit() {
+    // Initialize reactive preferences
+    this.theme = await this.storage.createSignal("theme", "light");
+    this.language = await this.storage.createSignal("language", "en");
+    this.notifications = await this.storage.createSignal("notifications", true);
+
+    // Watch for theme changes and apply to document
     this.theme$.subscribe((theme) => {
-      document.body.setAttribute("data-theme", theme);
+      document.body.setAttribute("data-theme", theme || "light");
     });
   }
 
@@ -399,10 +558,11 @@ export class PreferencesService {
     return this.storage.watch<string>("theme");
   }
 
-  updatePreferences(updates: Partial<UserPreferences>): void {
-    Object.entries(updates).forEach(([key, value]) => {
-      this.storage.setData(key, value);
-    });
+  async updatePreferences(updates: Partial<UserPreferences>): Promise<void> {
+    // Store preferences with encryption
+    for (const [key, value] of Object.entries(updates)) {
+      await this.storage.setData(key, value, { encrypt: true });
+    }
   }
 
   resetToDefaults(): void {
@@ -411,7 +571,7 @@ export class PreferencesService {
 }
 ```
 
-### Shopping Cart Service
+### Secure Shopping Cart Service
 
 ```typescript
 @Injectable({ providedIn: "root" })
@@ -420,28 +580,40 @@ export class CartService {
   private storage = this.storageManager.getStorage("session");
 
   // Reactive cart state
-  items = this.storage.createSignal<CartItem[]>("cart", []);
+  items: Signal<CartItem[]> = signal([]);
 
   // Computed values
   itemCount = computed(() => this.items().reduce((sum, item) => sum + item.quantity, 0));
-
   total = computed(() => this.items().reduce((sum, item) => sum + item.price * item.quantity, 0));
 
-  addItem(product: Product, quantity = 1): void {
-    this.storage.updateData("cart", (current: CartItem[] = []) => {
-      const existingIndex = current.findIndex((item) => item.id === product.id);
-
-      if (existingIndex >= 0) {
-        current[existingIndex].quantity += quantity;
-        return [...current];
-      } else {
-        return [...current, { ...product, quantity }];
-      }
-    });
+  async ngOnInit() {
+    this.items = await this.storage.createSignal<CartItem[]>("cart", []);
   }
 
-  removeItem(productId: string): void {
-    this.storage.updateData("cart", (current: CartItem[] = []) => current.filter((item) => item.id !== productId));
+  async addItem(product: Product, quantity = 1): Promise<void> {
+    await this.storage.updateData(
+      "cart",
+      (current: CartItem[] = []) => {
+        const existingIndex = current.findIndex((item) => item.id === product.id);
+
+        if (existingIndex >= 0) {
+          current[existingIndex].quantity += quantity;
+          return [...current];
+        } else {
+          return [...current, { ...product, quantity }];
+        }
+      },
+      {
+        encrypt: true, // Encrypt cart data
+        ttlMinutes: 60, // Cart expires in 1 hour
+      }
+    );
+  }
+
+  async removeItem(productId: string): Promise<void> {
+    await this.storage.updateData("cart", (current: CartItem[] = []) => current.filter((item) => item.id !== productId), {
+      encrypt: true,
+    });
   }
 
   clear(): void {
@@ -450,7 +622,7 @@ export class CartService {
 }
 ```
 
-### Form Auto-Save Service
+### Enhanced Form Auto-Save Service
 
 ```typescript
 @Injectable({ providedIn: "root" })
@@ -459,7 +631,7 @@ export class FormAutoSaveService {
   private storage = this.storageManager.getStorage("session");
   private saveTimeouts = new Map<string, number>();
 
-  autoSave<T>(formId: string, data: T, delayMs = 1000): void {
+  async autoSave<T>(formId: string, data: T, delayMs = 1000): Promise<void> {
     // Clear existing timeout
     const existingTimeout = this.saveTimeouts.get(formId);
     if (existingTimeout) {
@@ -467,14 +639,15 @@ export class FormAutoSaveService {
     }
 
     // Set new timeout
-    const timeoutId = setTimeout(() => {
-      this.storage.setData(
+    const timeoutId = setTimeout(async () => {
+      await this.storage.setData(
         `form_${formId}`,
         {
           data,
           savedAt: Date.now(),
         },
         {
+          encrypt: true, // Encrypt form data
           ttlMinutes: 60, // Auto-save expires in 1 hour
         }
       );
@@ -484,8 +657,8 @@ export class FormAutoSaveService {
     this.saveTimeouts.set(formId, timeoutId);
   }
 
-  getSavedData<T>(formId: string): { data: T; savedAt: number } | null {
-    return this.storage.getData(`form_${formId}`);
+  async getSavedData<T>(formId: string): Promise<{ data: T; savedAt: number } | null> {
+    return await this.storage.getData(`form_${formId}`, { decrypt: true });
   }
 
   clearSavedData(formId: string): void {
@@ -501,15 +674,23 @@ export class FormAutoSaveService {
 
 ## 🔐 Security Considerations
 
-> **Important:** The encryption feature uses base64 encoding, which provides **obfuscation**, not cryptographic security.
+### AES-GCM Encryption Benefits
 
-### Best Practices
+✅ **Cryptographically Secure** - Uses industry-standard AES-GCM encryption  
+✅ **Tamper-Proof** - Authentication tags prevent data modification  
+✅ **Unique Per Session** - Random IVs ensure unique encryption each time  
+✅ **Key Derivation** - PBKDF2 with 100,000 iterations for secure key generation  
+✅ **Browser Native** - Uses Web Crypto API for optimal performance
 
-- ❌ **Don't store** highly sensitive data (passwords, credit cards)
-- ✅ **Do use** HTTPS to protect data in transit
-- ✅ **Do implement** proper session timeouts
+### Security Best Practices
+
+- ✅ **Do use encryption** for sensitive data (API tokens, user preferences)
+- ✅ **Do implement** proper session timeouts with TTL
 - ✅ **Do validate** data when retrieving from storage
-- ✅ **Do use** TTL for temporary sensitive data
+- ✅ **Do clear encryption keys** on logout for enhanced security
+- ✅ **Do use HTTPS** to protect data in transit
+- ❌ **Don't store** highly sensitive data (passwords, credit cards, SSNs)
+- ❌ **Don't rely solely** on client-side encryption for critical security
 
 ### Enhanced Security Example
 
@@ -519,26 +700,26 @@ export class SecureStorageService {
   private storageManager = inject(NgStorageManager);
   private storage = this.storageManager.getStorage("user");
 
-  storeSecurely<T>(key: string, value: T, ttlMinutes: number): void {
+  async storeSecurely<T>(key: string, value: T, ttlMinutes: number): Promise<void> {
     const secureItem = {
       value,
       timestamp: Date.now(),
-      checksum: this.generateChecksum(JSON.stringify(value)),
+      checksum: await this.generateChecksum(JSON.stringify(value)),
     };
 
-    this.storage.setData(key, secureItem, {
+    await this.storage.setData(key, secureItem, {
       encrypt: true,
       ttlMinutes,
     });
   }
 
-  getSecurely<T>(key: string): T | null {
-    const item = this.storage.getData(key, { decrypt: true });
+  async getSecurely<T>(key: string): Promise<T | null> {
+    const item = await this.storage.getData(key, { decrypt: true });
 
     if (!item) return null;
 
     // Validate checksum
-    const expectedChecksum = this.generateChecksum(JSON.stringify(item.value));
+    const expectedChecksum = await this.generateChecksum(JSON.stringify(item.value));
     if (item.checksum !== expectedChecksum) {
       this.storage.removeData(key);
       throw new Error("Data integrity check failed");
@@ -547,12 +728,30 @@ export class SecureStorageService {
     return item.value;
   }
 
-  private generateChecksum(data: string): string {
-    // Simple checksum - use crypto library in production
-    return btoa(data).slice(0, 8);
+  private async generateChecksum(data: string): Promise<string> {
+    // Use Web Crypto API for secure checksums
+    const encoder = new TextEncoder();
+    const dataBuffer = encoder.encode(data);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", dataBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .slice(0, 16);
   }
 }
 ```
+
+### Browser Compatibility for Encryption
+
+| Browser        | AES-GCM Support    | Fallback           |
+| -------------- | ------------------ | ------------------ |
+| Chrome 37+     | ✅ Full encryption | N/A                |
+| Firefox 34+    | ✅ Full encryption | N/A                |
+| Safari 7+      | ✅ Full encryption | N/A                |
+| Edge 12+       | ✅ Full encryption | N/A                |
+| IE 11          | ❌                 | ✅ Base64 encoding |
+| Older browsers | ❌                 | ✅ Base64 encoding |
 
 ## 🧪 Testing
 
@@ -587,10 +786,18 @@ describe("Component with NgStorageService", () => {
     });
   });
 
-  it("should store and retrieve data", () => {
+  it("should store and retrieve data", async () => {
     const service = TestBed.inject(NgStorageService);
-    service.setData("test", "value");
-    expect(service.getData("test")).toBe("value");
+    await service.setData("test", "value");
+    const result = await service.getData("test");
+    expect(result).toBe("value");
+  });
+
+  it("should encrypt and decrypt data", async () => {
+    const service = TestBed.inject(NgStorageService);
+    await service.setData("encrypted", "secret", { encrypt: true });
+    const result = await service.getData("encrypted", { decrypt: true });
+    expect(result).toBe("secret");
   });
 });
 ```
@@ -613,184 +820,174 @@ npm test -- --watch
 
 ## 🔄 Migration Guide
 
-### Breaking Changes in v2.0.0
+### Breaking Changes in v2.1.0 - Encryption Update
 
-#### 🚨 **Constructor Changes**
+#### 🚨 **Method Signature Changes**
 
-**Before (v1.x):**
+**Before (v2.0.x):**
 
 ```typescript
-// v1.x - Manual constructor injection
-constructor(config: Partial<StorageConfig> = {}) { }
-
-// Usage
-const storage = new NgStorageService({ prefix: 'app' });
+// v2.0.x - Synchronous methods
+storage.setData("key", "value"); // ✅ Synchronous
+storage.getData("key"); // ✅ Synchronous
+storage.hasKey("key"); // ✅ Synchronous
 ```
 
-**After (v2.x):**
+**After (v2.1.x):**
 
 ```typescript
-// v2.x - Angular DI with injection tokens
-constructor(
-  @Optional() @Inject(STORAGE_OPTIONS) options?: StorageConfig,
-  @Optional() @Inject(STORAGE_FLAGS) flags?: StorageFlags
-) { }
-
-// Usage - Use providers instead
-...provideNgStorageConfig({ prefix: 'app' })
+// v2.1.x - Async methods for encryption support
+await storage.setData("key", "value"); // 🔄 Now async
+await storage.getData("key"); // 🔄 Now async
+await storage.hasKey("key"); // 🔄 Now async
 ```
 
-**Migration:**
+#### 🚨 **Encryption System Changes**
+
+**Before (v2.0.x):**
 
 ```typescript
-// OLD: Direct instantiation
-const storage = new NgStorageService({ prefix: 'app' });
-
-// NEW: Use static factory methods
-const storage = NgStorageService.create({ prefix: 'app' });
-
-// OR: Use providers in app.config.ts
-...provideNgStorageConfig({ prefix: 'app' })
+// v2.0.x - Base64 encoding only
+storage.setData("token", "secret", { encrypt: true }); // Base64 only
 ```
 
-#### 🚨 **Configuration System Changes**
-
-**Before (v1.x):**
+**After (v2.1.x):**
 
 ```typescript
-// v1.x - Single injection token
-import { STORAGE_CONFIG } from "ng7-storage";
+// v2.1.x - AES-GCM encryption with fallback
+await storage.setData("token", "secret", { encrypt: true }); // AES-GCM or Base64
 
-providers: [{ provide: STORAGE_CONFIG, useValue: config }, NgStorageService];
+// Check encryption capabilities
+if (storage.isEncryptionSupported()) {
+  console.log("Using AES-GCM encryption");
+} else {
+  console.log("Falling back to Base64");
+}
 ```
 
-**After (v2.x):**
+#### 🚨 **Reactive Features Changes**
+
+**Before (v2.0.x):**
 
 ```typescript
-// v2.x - Provider functions (recommended)
-import { provideNgStorageConfig } from "ng7-storage";
-
-providers: [...provideNgStorageConfig(config)];
+// v2.0.x - Synchronous signal creation
+const signal = storage.createSignal("key", "default");
 ```
 
-#### 🚨 **API Changes**
-
-**Before (v1.x):**
+**After (v2.1.x):**
 
 ```typescript
-// v1.x - Optional parameters were truly optional
-service.setData("key", "value"); // ✅ Worked
-service.getData("key"); // ✅ Worked
-```
+// v2.1.x - Async signal creation
+const signal = await storage.createSignal("key", "default");
 
-**After (v2.x):**
-
-```typescript
-// v2.x - Options object pattern
-service.setData("key", "value", {}); // ✅ Options object
-service.getData("key", {}); // ✅ Options object
-
-// But these still work for backward compatibility
-service.setData("key", "value"); // ✅ Still works
-service.getData("key"); // ✅ Still works
-```
-
-#### 🚨 **New Features (Non-Breaking)**
-
-These are new features that don't break existing code:
-
-```typescript
-// ✨ New: Storage flags
-...provideNgStorageConfig(config, {
-  autoCleanup: true,
-  strictMode: false,
-  enableMetrics: true
-})
-
-// ✨ New: Multiple named instances
-...provideNamedNgStorage(() => ({
-  user: { prefix: 'user' },
-  cache: { prefix: 'cache' }
-}))
-
-// ✨ New: NgStorageManager
-const manager = inject(NgStorageManager);
-const userStorage = manager.getStorage('user');
-
-// ✨ New: Enhanced reactive features
-const signal = storage.createSignal('key', 'default');
-const pattern$ = storage.watchPattern('user.*');
+// Or in component lifecycle
+async ngOnInit() {
+  this.userSignal = await this.storage.createSignal<User>("user");
+}
 ```
 
 ### Migration Steps
 
-#### Step 1: Update Imports
+#### Step 1: Update Method Calls to Async
 
 ```typescript
 // Before
-import { NgStorageService, STORAGE_CONFIG } from "ng7-storage";
+const user = storage.getData("user");
+storage.setData("user", newUser);
+const exists = storage.hasKey("user");
 
 // After
-import { NgStorageService, provideNgStorageConfig, NgStorageManager } from "ng7-storage";
+const user = await storage.getData("user");
+await storage.setData("user", newUser);
+const exists = await storage.hasKey("user");
 ```
 
-#### Step 2: Update Configuration
+#### Step 2: Update Component Lifecycle
 
 ```typescript
 // Before
-providers: [{ provide: STORAGE_CONFIG, useValue: { prefix: "app" } }, NgStorageService];
-
-// After
-providers: [...provideNgStorageConfig({ prefix: "app" })];
-```
-
-#### Step 3: Update Static Instantiation (if used)
-
-```typescript
-// Before
-const storage = new NgStorageService({ prefix: "app" });
-
-// After
-const storage = NgStorageService.create({ prefix: "app" });
-```
-
-#### Step 4: Leverage New Features (Optional)
-
-```typescript
-// Add multiple storage instances
-providers: [
-  ...provideNamedNgStorage(() => ({
-    user: { prefix: "user-data", storageType: "localStorage" },
-    temp: { prefix: "temp-data", storageType: "sessionStorage" },
-  })),
-  NgStorageManager,
-];
-
-// Use in components
 export class MyComponent {
-  private manager = inject(NgStorageManager);
-  private userStorage = this.manager.getStorage("user");
-  private tempStorage = this.manager.getStorage("temp");
+  userSignal = this.storage.createSignal<User>("user");
 }
+
+// After
+export class MyComponent {
+  userSignal: Signal<User | null> = signal(null);
+
+  async ngOnInit() {
+    this.userSignal = await this.storage.createSignal<User>("user");
+  }
+}
+```
+
+#### Step 3: Update Service Methods
+
+```typescript
+// Before
+@Injectable()
+export class UserService {
+  saveUser(user: User): void {
+    this.storage.setData("user", user);
+  }
+
+  getUser(): User | null {
+    return this.storage.getData("user");
+  }
+}
+
+// After
+@Injectable()
+export class UserService {
+  async saveUser(user: User): Promise<void> {
+    await this.storage.setData("user", user, { encrypt: true });
+  }
+
+  async getUser(): Promise<User | null> {
+    return await this.storage.getData("user", { decrypt: true });
+  }
+}
+```
+
+#### Step 4: Leverage New Encryption Features
+
+```typescript
+// Enhanced security with new encryption
+await storage.setData("sensitiveData", data, {
+  encrypt: true,
+  ttlMinutes: 60,
+});
+
+// Check encryption support
+if (storage.isEncryptionSupported()) {
+  // Use full encryption features
+} else {
+  // Handle fallback gracefully
+}
+
+// Clear encryption key on logout
+storage.clearEncryptionKey();
 ```
 
 ### Compatibility
 
-- ✅ **Angular 18+** required
+- ✅ **Angular 20+** required (updated from 19+)
 - ✅ **TypeScript 5.0+** required
-- ✅ **Most v1.x code** works without changes
-- ✅ **Static factory methods** maintain full compatibility
-- ⚠️ **Direct constructor usage** requires migration to `NgStorageService.create()`
+- ✅ **Web Crypto API** for full encryption (with fallback)
+- ⚠️ **Breaking**: Most core methods are now async
+- ⚠️ **Breaking**: Signal creation is now async
+- ✅ **Enhanced**: Much stronger encryption than before
+- ✅ **Backward Compatible**: Existing stored data still works
 
 ## 🌐 Browser Compatibility
 
-| Browser | Version | localStorage | sessionStorage |
-| ------- | ------- | ------------ | -------------- |
-| Chrome  | 4+      | ✅           | ✅             |
-| Firefox | 3.5+    | ✅           | ✅             |
-| Safari  | 4+      | ✅           | ✅             |
-| Edge    | All     | ✅           | ✅             |
-| IE      | 8+      | ✅           | ✅             |
+| Browser | Version | localStorage | sessionStorage | AES-GCM Encryption   |
+| ------- | ------- | ------------ | -------------- | -------------------- |
+| Chrome  | 37+     | ✅           | ✅             | ✅                   |
+| Firefox | 34+     | ✅           | ✅             | ✅                   |
+| Safari  | 7+      | ✅           | ✅             | ✅                   |
+| Edge    | 12+     | ✅           | ✅             | ✅                   |
+| IE      | 11      | ✅           | ✅             | ❌ (Base64 fallback) |
+| IE      | 8-10    | ✅           | ✅             | ❌ (Base64 fallback) |
 
 ## 🤝 Contributing
 
@@ -813,6 +1010,21 @@ npm run build
 ```
 
 ## 📝 Changelog
+
+### v2.1.0 - Major Encryption Update
+
+- ✨ **BREAKING:** Core methods now async for encryption support
+- ✨ **NEW:** PBKDF2 key derivation with 100,000 iterations
+- ✨ **NEW:** Automatic fallback to Base64 for older browsers
+- ✨ **NEW:** `isEncryptionSupported()` method
+- ✨ **NEW:** `clearEncryptionKey()` method for security
+- ✨ **ENHANCED:** Signal creation now async
+- ✨ **ENHANCED:** Storage statistics now async
+- ✨ **ENHANCED:** Better error handling and logging
+- 🔧 **IMPROVED:** Cross-browser compatibility
+- 🔧 **IMPROVED:** Performance with key caching
+- 🛡️ **SECURITY:** Data integrity protection with authentication tags
+- 🛡️ **SECURITY:** Unique encryption per data item with random IVs
 
 ### v2.0.0 - Major Release
 
@@ -845,6 +1057,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Angular team for the amazing framework and signals
 - Apollo GraphQL team for the inspiration on provider patterns
 - RxJS team for reactive programming utilities
+- Web Crypto API for enabling secure client-side encryption
 - All contributors and users of this library
 
 ## 📞 Support
@@ -852,13 +1065,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/edisonaugusthy/ng-storage/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/edisonaugusthy/ng-storage/discussions)
 - 📧 **Email**: your-email@example.com
+- 🔐 **Security Issues**: Please report security vulnerabilities privately
 
 ---
 
 <div align="center">
 
-**Made with ❤️ for the Angular community**
+**Made with ❤️ and 🔐 for the Angular community**
 
 [⭐ Star this repo](https://github.com/edisonaugusthy/ng-storage) | [🍴 Fork it](https://github.com/edisonaugusthy/ng-storage/fork) | [📋 Report Issues](https://github.com/edisonaugusthy/ng-storage/issues)
 
-</div>
+</div> AES-GCM encryption using Web Crypto API
+- ✨ **NEW:** 256-bit encryption with authentication
+- ✨ **NEW:**

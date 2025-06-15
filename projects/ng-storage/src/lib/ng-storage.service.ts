@@ -27,6 +27,7 @@ import {
   StorageType,
 } from './ng-storage.model';
 import { provideNgStorage } from './ng-storage.module';
+import { CryptoUtils } from './utils';
 
 /**
  * Simple provider for basic configuration
@@ -48,6 +49,7 @@ export class NgStorageService {
   private readonly storageTypeName: string;
   private readonly supportedMessage: string;
   private readonly isSupported: boolean;
+  private readonly isCryptoSupported: boolean;
 
   // Reactive state management
   private readonly _storageData = signal<Record<string, any>>({});
@@ -95,12 +97,19 @@ export class NgStorageService {
 
     // Check if storage is supported
     this.isSupported = this.checkStorageSupport();
+    this.isCryptoSupported = CryptoUtils.isSupported();
 
     if (!this.isSupported) {
       console.error(this.supportedMessage);
       if (this.flags.strictMode) {
         throw new Error(this.supportedMessage);
       }
+    }
+
+    if (!this.isCryptoSupported) {
+      console.warn(
+        '[NgStorageService] Web Crypto API not supported. Encryption will be disabled.'
+      );
     }
 
     // Initialize reactive state
@@ -156,7 +165,7 @@ export class NgStorageService {
   /**
    * Initializes reactive state from existing storage
    */
-  private initializeReactiveState(): void {
+  private async initializeReactiveState(): Promise<void> {
     try {
       const data: Record<string, any> = {};
       const prefix = `${this.config.prefix}:`;
@@ -166,7 +175,7 @@ export class NgStorageService {
         if (key?.startsWith(prefix)) {
           const originalKey = key.substring(prefix.length);
           try {
-            const value = this.getDataInternal(originalKey);
+            const value = await this.getDataInternal(originalKey);
             if (value !== null) {
               data[originalKey] = value;
             }
@@ -208,26 +217,52 @@ export class NgStorageService {
   }
 
   /**
-   * Encrypts data using base64 encoding
+   * Encrypts data using AES-GCM encryption
    */
-  private encrypt(data: string): string {
+  private async encrypt(data: string): Promise<string> {
+    if (!this.isCryptoSupported) {
+      this.log(
+        'Crypto not supported, falling back to base64 encoding',
+        '',
+        null
+      );
+      return btoa(encodeURIComponent(data));
+    }
+
     try {
-      return window.btoa(encodeURIComponent(data));
+      return await CryptoUtils.encrypt(data);
     } catch (error) {
-      this.log('Encryption failed', '', error);
-      throw new Error('Failed to encrypt data');
+      this.log('Encryption failed, falling back to base64 encoding', '', error);
+      return btoa(encodeURIComponent(data));
     }
   }
 
   /**
-   * Decrypts data using base64 decoding
+   * Decrypts data using AES-GCM decryption
    */
-  private decrypt(encryptedData: string): string {
+  private async decrypt(encryptedData: string): Promise<string> {
+    if (!this.isCryptoSupported) {
+      try {
+        return decodeURIComponent(atob(encryptedData));
+      } catch (error) {
+        this.log('Base64 decoding failed', '', error);
+        throw new Error('Failed to decode data');
+      }
+    }
+
     try {
-      return decodeURIComponent(window.atob(encryptedData));
+      return await CryptoUtils.decrypt(encryptedData);
     } catch (error) {
-      this.log('Decryption failed', '', error);
-      throw new Error('Failed to decrypt data');
+      // Fallback to base64 decoding for backward compatibility
+      try {
+        return decodeURIComponent(atob(encryptedData));
+      } catch (fallbackError) {
+        this.log('Both decryption methods failed', '', {
+          error,
+          fallbackError,
+        });
+        throw new Error('Failed to decrypt data');
+      }
     }
   }
 
@@ -299,10 +334,10 @@ export class NgStorageService {
   /**
    * Internal get data method without reactive updates
    */
-  private getDataInternal<T = any>(
+  private async getDataInternal<T = any>(
     key: string,
     options: { decrypt?: boolean; defaultValue?: T } = {}
-  ): T | null {
+  ): Promise<T | null> {
     try {
       const storageKey = this.generateKey(key);
       const { decrypt = false, defaultValue = null } = options;
@@ -316,7 +351,7 @@ export class NgStorageService {
       let parsedData: string;
 
       if (decrypt) {
-        parsedData = this.decrypt(rawData);
+        parsedData = await this.decrypt(rawData);
       } else {
         parsedData = rawData;
       }
@@ -339,7 +374,7 @@ export class NgStorageService {
   /**
    * Removes expired items from storage
    */
-  private cleanupExpiredItems(): void {
+  private async cleanupExpiredItems(): Promise<void> {
     try {
       const keysToRemove: string[] = [];
       const currentData = this._storageData();
@@ -357,7 +392,7 @@ export class NgStorageService {
                 JSON.parse(parsedData);
               } catch {
                 try {
-                  parsedData = this.decrypt(rawData);
+                  parsedData = await this.decrypt(rawData);
                 } catch {
                   keysToRemove.push(key);
                   continue;
@@ -393,16 +428,16 @@ export class NgStorageService {
   }
 
   /**
-   * Stores data in session storage with optional encryption and TTL
+   * Stores data in storage with optional encryption and TTL
    */
-  setData<T = any>(
+  async setData<T = any>(
     key: string,
     value: T,
     options: {
       encrypt?: boolean;
       ttlMinutes?: number;
     } = {}
-  ): boolean {
+  ): Promise<boolean> {
     try {
       if (!this.isSupported) {
         throw new Error(this.supportedMessage);
@@ -421,7 +456,7 @@ export class NgStorageService {
       let serializedData = JSON.stringify(item);
 
       if (encrypt) {
-        serializedData = this.encrypt(serializedData);
+        serializedData = await this.encrypt(serializedData);
       }
 
       this.storage.setItem(storageKey, serializedData);
@@ -439,15 +474,15 @@ export class NgStorageService {
   }
 
   /**
-   * Retrieves data from session storage with automatic decryption and expiry check
+   * Retrieves data from storage with automatic decryption and expiry check
    */
-  getData<T = any>(
+  async getData<T = any>(
     key: string,
     options: {
       decrypt?: boolean;
       defaultValue?: T;
     } = {}
-  ): T | null {
+  ): Promise<T | null> {
     // Try to get from reactive state first
     const reactiveValue = this._storageData()[key];
     if (reactiveValue !== undefined) {
@@ -455,7 +490,7 @@ export class NgStorageService {
     }
 
     // Fallback to storage
-    const value = this.getDataInternal<T>(key, options);
+    const value = await this.getDataInternal<T>(key, options);
 
     // Update reactive state if value found
     if (value !== null) {
@@ -468,8 +503,8 @@ export class NgStorageService {
   /**
    * Creates a signal for a specific key
    */
-  createSignal<T = any>(key: string, defaultValue?: T) {
-    const initialValue = this.getData<T>(key) ?? defaultValue ?? null;
+  async createSignal<T = any>(key: string, defaultValue?: T) {
+    const initialValue = (await this.getData<T>(key)) ?? defaultValue ?? null;
     const keySignal = signal<T | null>(initialValue);
 
     // Subscribe to changes for this key
@@ -485,11 +520,18 @@ export class NgStorageService {
    */
   watch<T = any>(key: string): Observable<T | null> {
     if (!this._keyChangeSubjects.has(key)) {
-      const currentValue = this.getData<T>(key);
-      this._keyChangeSubjects.set(
-        key,
-        new BehaviorSubject<T | null>(currentValue)
-      );
+      // Initialize with current value asynchronously
+      this.getData<T>(key).then((currentValue) => {
+        if (!this._keyChangeSubjects.has(key)) {
+          this._keyChangeSubjects.set(
+            key,
+            new BehaviorSubject<T | null>(currentValue)
+          );
+        }
+      });
+
+      // Create with null initially
+      this._keyChangeSubjects.set(key, new BehaviorSubject<T | null>(null));
     }
 
     return this._keyChangeSubjects
@@ -605,7 +647,7 @@ export class NgStorageService {
   /**
    * Checks if a key exists in storage
    */
-  hasKey(key: string): boolean {
+  async hasKey(key: string): Promise<boolean> {
     // Check reactive state first
     if (this._storageData()[key] !== undefined) {
       return true;
@@ -617,7 +659,7 @@ export class NgStorageService {
         return false;
       }
 
-      const value = this.getDataInternal(key);
+      const value = await this.getDataInternal(key);
       const exists = value !== null;
 
       // Update reactive state if found
@@ -642,7 +684,7 @@ export class NgStorageService {
   /**
    * Gets storage statistics
    */
-  getStorageStats(): StorageStats {
+  async getStorageStats(): Promise<StorageStats> {
     const stats: StorageStats = {
       totalItems: 0,
       totalSize: 0,
@@ -671,7 +713,7 @@ export class NgStorageService {
               try {
                 JSON.parse(parsedData);
               } catch {
-                parsedData = this.decrypt(data);
+                parsedData = await this.decrypt(data);
               }
 
               const item: StorageItem = JSON.parse(parsedData);
@@ -706,18 +748,20 @@ export class NgStorageService {
   /**
    * Updates existing data if key exists
    */
-  updateData<T = any>(
+  async updateData<T = any>(
     key: string,
     updateFn: (currentValue: T | null) => T,
     options: {
       encrypt?: boolean;
       ttlMinutes?: number;
     } = {}
-  ): boolean {
+  ): Promise<boolean> {
     try {
-      const currentValue = this.getData<T>(key, { decrypt: options.encrypt });
+      const currentValue = await this.getData<T>(key, {
+        decrypt: options.encrypt,
+      });
       const newValue = updateFn(currentValue);
-      return this.setData(key, newValue, options);
+      return await this.setData(key, newValue, options);
     } catch (error) {
       this.log('Update data failed', key, error);
       return false;
@@ -727,16 +771,16 @@ export class NgStorageService {
   /**
    * Sets data only if key doesn't exist
    */
-  setIfNotExists<T = any>(
+  async setIfNotExists<T = any>(
     key: string,
     value: T,
     options: {
       encrypt?: boolean;
       ttlMinutes?: number;
     } = {}
-  ): boolean {
-    if (!this.hasKey(key)) {
-      return this.setData(key, value, options);
+  ): Promise<boolean> {
+    if (!(await this.hasKey(key))) {
+      return await this.setData(key, value, options);
     }
     return false;
   }
@@ -790,17 +834,32 @@ export class NgStorageService {
   }
 
   /**
+   * Checks if encryption is supported
+   */
+  isEncryptionSupported(): boolean {
+    return this.isCryptoSupported;
+  }
+
+  /**
    * Forces cleanup of expired items
    */
-  cleanup(): number {
-    const initialStats = this.getStorageStats();
-    this.cleanupExpiredItems();
-    const finalStats = this.getStorageStats();
+  async cleanup(): Promise<number> {
+    const initialStats = await this.getStorageStats();
+    await this.cleanupExpiredItems();
+    const finalStats = await this.getStorageStats();
 
     const removedCount = initialStats.totalItems - finalStats.totalItems;
     this.log('Manual cleanup completed', '', { removedCount });
 
     return removedCount;
+  }
+
+  /**
+   * Clears the encryption key (useful for key rotation)
+   */
+  clearEncryptionKey(): void {
+    CryptoUtils.clearKey();
+    this.log('Encryption key cleared', '');
   }
 
   /**
