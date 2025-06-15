@@ -1,4 +1,11 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
+import {
+  Injectable,
+  signal,
+  computed,
+  Inject,
+  Optional,
+  Provider,
+} from '@angular/core';
 import {
   BehaviorSubject,
   Observable,
@@ -7,43 +14,28 @@ import {
   map,
   distinctUntilChanged,
 } from 'rxjs';
+import {
+  DEFAULT_STORAGE_CONFIG,
+  DEFAULT_STORAGE_FLAGS,
+  STORAGE_FLAGS,
+  STORAGE_OPTIONS,
+  StorageChangeEvent,
+  StorageConfig,
+  StorageFlags,
+  StorageItem,
+  StorageStats,
+  StorageType,
+} from './ng-storage.model';
+import { provideNgStorage } from './ng-storage.module';
 
-// Types and Interfaces
-export type StorageType = 'localStorage' | 'sessionStorage';
-
-export interface StorageItem<T = any> {
-  value: T;
-  timestamp: number;
-  expiry?: number;
-  encrypted?: boolean;
-}
-
-export interface StorageConfig {
-  prefix?: string;
-  defaultTTL?: number; // in minutes
-  enableLogging?: boolean;
-  caseSensitive?: boolean;
-  storageType?: StorageType;
-}
-
-export interface StorageStats {
-  totalItems: number;
-  totalSize: number; // in bytes
-  availableSpace: number;
-  items: Array<{
-    key: string;
-    size: number;
-    timestamp: number;
-    hasExpiry: boolean;
-  }>;
-}
-
-export interface StorageChangeEvent<T = any> {
-  key: string;
-  oldValue: T | null;
-  newValue: T | null;
-  action: 'set' | 'remove' | 'clear' | 'expire';
-  timestamp: number;
+/**
+ * Simple provider for basic configuration
+ */
+export function provideNgStorageConfig(
+  config: StorageConfig,
+  flags: StorageFlags = {}
+): Provider[] {
+  return provideNgStorage(() => config, flags);
 }
 
 @Injectable({
@@ -51,6 +43,7 @@ export interface StorageChangeEvent<T = any> {
 })
 export class NgStorageService {
   private readonly config: Required<StorageConfig>;
+  private readonly flags: Required<StorageFlags>;
   private readonly storage: Storage;
   private readonly storageTypeName: string;
   private readonly supportedMessage: string;
@@ -75,14 +68,19 @@ export class NgStorageService {
     };
   });
 
-  constructor(config: Partial<StorageConfig> = {}) {
-    // Set default configuration
+  constructor(
+    @Optional() @Inject(STORAGE_OPTIONS) options?: StorageConfig,
+    @Optional() @Inject(STORAGE_FLAGS) flags?: StorageFlags
+  ) {
+    // Merge configurations
     this.config = {
-      prefix: config.prefix || 'ng-storage',
-      defaultTTL: config.defaultTTL || 0, // 0 means no expiry
-      enableLogging: config.enableLogging ?? false,
-      caseSensitive: config.caseSensitive ?? false,
-      storageType: config.storageType || 'sessionStorage',
+      ...DEFAULT_STORAGE_CONFIG,
+      ...options,
+    };
+
+    this.flags = {
+      ...DEFAULT_STORAGE_FLAGS,
+      ...flags,
     };
 
     // Set storage type and messages
@@ -100,17 +98,21 @@ export class NgStorageService {
 
     if (!this.isSupported) {
       console.error(this.supportedMessage);
-      throw new Error(this.supportedMessage);
+      if (this.flags.strictMode) {
+        throw new Error(this.supportedMessage);
+      }
     }
 
     // Initialize reactive state
     this.initializeReactiveState();
 
     // Clean expired items on initialization
-    this.cleanupExpiredItems();
+    if (this.flags.autoCleanup) {
+      this.cleanupExpiredItems();
+    }
 
     // Set up periodic cleanup
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && this.flags.autoCleanup) {
       setInterval(() => this.cleanupExpiredItems(), 5 * 60 * 1000); // Every 5 minutes
     }
   }

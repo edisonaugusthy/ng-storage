@@ -1,6 +1,6 @@
 {
   "name": "ng7-storage",
-  "version": "2.0.0",
+  "version": "19.0.0",
   "description": "Share data among multiple components in angular using browser session storage",
   "keywords": [
     "Angular Storage",
