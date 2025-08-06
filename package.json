@@ -1,11 +1,10 @@
 {
-  "name": "ng7-storage",
-  "version": "19.0.0",
-  "description": "Share data among multiple components in angular using browser session storage",
+  "name": "ngx-storage",
+  "version": "20.0.1",
+  "description": "A modern, reactive package for browser storage management with AES-GCM encryption",
   "keywords": [
     "Angular Storage",
-    "ng-storage",
-    "ng7-storage",
+    "ngx-storage",
     "cookies",
     "Storage",
     "browser Storage",
@@ -15,11 +14,11 @@
     "prepare": "husky install",
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build ng-storage",
+    "build": "ng build ngx-storage",
     "publish": "npm publish",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint-package": "ng lint ng-storage",
+    "lint-package": "ng lint ngx-storage",
     "commit": "git-cz",
     "semantic-release": "semantic-release"
   },
@@ -66,7 +65,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/edisonaugusthy/ng-storage.git"
+    "url": "git+https://github.com/edisonaugusthy/ngx-storage.git"
   },
   "config": {
     "commitizen": {
@@ -74,6 +73,6 @@
     }
   },
   "release": {
-    "pkgRoot": "dist/ng-storage"
+    "pkgRoot": "dist/ngx-storage"
   }
 }

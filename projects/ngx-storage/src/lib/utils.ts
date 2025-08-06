@@ -80,7 +80,7 @@ export class CryptoUtils {
     }
 
     // Use a default password - in production, you might want to make this configurable
-    const password = 'ng-storage-default-key-2024';
+    const password = 'ngx-storage-default-key-2024';
 
     return this.deriveKey(password, salt);
   }

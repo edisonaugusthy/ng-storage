@@ -7,15 +7,15 @@ import {
   STORAGE_OPTIONS,
   StorageConfig,
   StorageFlags,
-} from './ng-storage.model';
-import { NgStorageService } from './ng-storage.service';
+} from './ngx-storage.model';
+import { NgxStorageService } from './ngx-storage.service';
 
-export function provideNgStorage<T = any>(
+export function provideNgxStorage<T = any>(
   optionsFactory: () => StorageConfig,
   flags: StorageFlags = {}
 ): Provider[] {
   return [
-    NgStorageService,
+    NgxStorageService,
     {
       provide: STORAGE_OPTIONS,
       useFactory: optionsFactory,
@@ -28,9 +28,9 @@ export function provideNgStorage<T = any>(
 }
 
 /**
- * Provides multiple named NgStorageService instances
+ * Provides multiple named NgxStorageService instances
  */
-export function provideNamedNgStorage(
+export function provideNamedNgxStorage(
   optionsFactory: () => NamedStorageConfig,
   flags: StorageFlags = {}
 ): Provider[] {

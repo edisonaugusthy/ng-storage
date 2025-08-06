@@ -58,7 +58,7 @@ export const STORAGE_FLAGS = new InjectionToken<StorageFlags>('StorageFlags');
 
 // Default Configuration
 export const DEFAULT_STORAGE_CONFIG: Required<StorageConfig> = {
-  prefix: 'ng-storage',
+  prefix: 'ngx-storage',
   defaultTTL: 0,
   enableLogging: false,
   caseSensitive: false,

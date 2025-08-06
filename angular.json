@@ -3,23 +3,23 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ng-storage": {
+    "ngx-storage": {
       "projectType": "library",
-      "root": "projects/ng-storage",
-      "sourceRoot": "projects/ng-storage/src",
+      "root": "projects/ngx-storage",
+      "sourceRoot": "projects/ngx-storage/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",
           "options": {
-            "project": "projects/ng-storage/ng-package.json"
+            "project": "projects/ngx-storage/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ng-storage/tsconfig.lib.prod.json"
+              "tsConfig": "projects/ngx-storage/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/ng-storage/tsconfig.lib.json"
+              "tsConfig": "projects/ngx-storage/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -27,11 +27,8 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "tsConfig": "projects/ng-storage/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "tsConfig": "projects/ngx-storage/tsconfig.spec.json",
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
       }

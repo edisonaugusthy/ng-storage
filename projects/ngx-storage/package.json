@@ -1,14 +1,12 @@
 {
-  "name": "ng7-storage",
+  "name": "ngx-storage",
   "version": "0.0.0",
   "author": "Edison Augusthy",
   "license": "MIT",
-  "description": "An Angular service for browser session storage management with optional base64 encryption/decryption.",
+  "description": "A modern, reactive package for browser storage management with AES-GCM encryption",
   "keywords": [
     "Angular Storage",
-    "ng-storage",
-    "ng7-storage",
-    "cookielss",
+    "ngx-storage",
     "Storage",
     "browser Storage",
     "Session Storage",
@@ -17,7 +15,7 @@
     "data storage",
     "encryption",
     "base64",
-    "ng7",
+    "ngx-storage",
     "session management"
   ],
   "peerDependencies": {
@@ -27,9 +25,5 @@
   "dependencies": {
     "tslib": "^2.3.0"
   },
-  "sideEffects": false,
-  "devDependencies": {
-    "@types/jest": "^29.5.14",
-    "jest": "^30.0.0"
-  }
+  "sideEffects": false
 }

@@ -25,24 +25,24 @@ import {
   StorageItem,
   StorageStats,
   StorageType,
-} from './ng-storage.model';
-import { provideNgStorage } from './ng-storage.module';
+} from './ngx-storage.model';
+import { provideNgxStorage } from './ngx-storage.module';
 import { CryptoUtils } from './utils';
 
 /**
- * Simple provider for basic configuration
+ * provider for basic configuration
  */
-export function provideNgStorageConfig(
+export function provideNgxStorageConfig(
   config: StorageConfig,
   flags: StorageFlags = {}
 ): Provider[] {
-  return provideNgStorage(() => config, flags);
+  return provideNgxStorage(() => config, flags);
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class NgStorageService {
+export class NgxStorageService {
   private readonly config: Required<StorageConfig>;
   private readonly flags: Required<StorageFlags>;
   private readonly storage: Storage;
@@ -804,8 +804,8 @@ export class NgStorageService {
    */
   static withStorageType(
     config: Partial<StorageConfig> & { storageType: StorageType }
-  ): NgStorageService {
-    return new NgStorageService(config);
+  ): NgxStorageService {
+    return new NgxStorageService(config);
   }
 
   /**
@@ -813,8 +813,8 @@ export class NgStorageService {
    */
   static localStorage(
     config: Partial<Omit<StorageConfig, 'storageType'>> = {}
-  ): NgStorageService {
-    return new NgStorageService({ ...config, storageType: 'localStorage' });
+  ): NgxStorageService {
+    return new NgxStorageService({ ...config, storageType: 'localStorage' });
   }
 
   /**
@@ -822,8 +822,8 @@ export class NgStorageService {
    */
   static sessionStorage(
     config: Partial<Omit<StorageConfig, 'storageType'>> = {}
-  ): NgStorageService {
-    return new NgStorageService({ ...config, storageType: 'sessionStorage' });
+  ): NgxStorageService {
+    return new NgxStorageService({ ...config, storageType: 'sessionStorage' });
   }
 
   /**
