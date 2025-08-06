@@ -21,8 +21,8 @@
     "session management"
   ],
   "peerDependencies": {
-    "@angular/common": "^20.0.3",
-    "@angular/core": "^20.0.3"
+    "@angular/common": "^20.1.5",
+    "@angular/core": "^20.1.5"
   },
   "dependencies": {
     "tslib": "^2.3.0"
