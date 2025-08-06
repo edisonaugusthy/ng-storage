@@ -723,7 +723,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ```bash
 # Clone repository
-git clone https://github.com/edisonaugusthy/ngx-storage.git
+git clone https://github.com/edisonaugusthy/ng-storage.git
 
 # Install dependencies
 npm install

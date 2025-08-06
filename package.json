@@ -65,7 +65,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/edisonaugusthy/ngx-storage.git"
+    "url": "git+https://github.com/edisonaugusthy/ng-storage.git"
   },
   "config": {
     "commitizen": {
