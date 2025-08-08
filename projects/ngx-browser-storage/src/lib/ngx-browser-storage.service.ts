@@ -25,24 +25,24 @@ import {
   StorageItem,
   StorageStats,
   StorageType,
-} from './ngx-storage.model';
-import { provideNgxStorage } from './ngx-storage.module';
+} from './ngx-browser-storage.model';
+import { provideNgxBrowserStorage } from './ngx-browser-storage.module';
 import { CryptoUtils } from './utils';
 
 /**
  * provider for basic configuration
  */
-export function provideNgxStorageConfig(
+export function provideNgxBrowserStorageConfig(
   config: StorageConfig,
   flags: StorageFlags = {}
 ): Provider[] {
-  return provideNgxStorage(() => config, flags);
+  return provideNgxBrowserStorage(() => config, flags);
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class NgxStorageService {
+export class NgxBrowserStorageService {
   private readonly config: Required<StorageConfig>;
   private readonly flags: Required<StorageFlags>;
   private readonly storage: Storage;
@@ -804,8 +804,8 @@ export class NgxStorageService {
    */
   static withStorageType(
     config: Partial<StorageConfig> & { storageType: StorageType }
-  ): NgxStorageService {
-    return new NgxStorageService(config);
+  ): NgxBrowserStorageService {
+    return new NgxBrowserStorageService(config);
   }
 
   /**
@@ -813,8 +813,11 @@ export class NgxStorageService {
    */
   static localStorage(
     config: Partial<Omit<StorageConfig, 'storageType'>> = {}
-  ): NgxStorageService {
-    return new NgxStorageService({ ...config, storageType: 'localStorage' });
+  ): NgxBrowserStorageService {
+    return new NgxBrowserStorageService({
+      ...config,
+      storageType: 'localStorage',
+    });
   }
 
   /**
@@ -822,8 +825,11 @@ export class NgxStorageService {
    */
   static sessionStorage(
     config: Partial<Omit<StorageConfig, 'storageType'>> = {}
-  ): NgxStorageService {
-    return new NgxStorageService({ ...config, storageType: 'sessionStorage' });
+  ): NgxBrowserStorageService {
+    return new NgxBrowserStorageService({
+      ...config,
+      storageType: 'sessionStorage',
+    });
   }
 
   /**

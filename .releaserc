@@ -10,7 +10,7 @@
       "@semantic-release/npm",
       {
         "npmPublish": true,
-        "tarballDir": "dist/ngx-storage"
+        "tarballDir": "dist/ngx-browser-storage"
       }
     ],
     [

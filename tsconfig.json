@@ -10,7 +10,7 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "paths": {
-      "ngx-storage": ["./dist/ngx-storage"]
+      "ngx-browser-storage": ["./dist/ngx-browser-storage"]
     },
     "esModuleInterop": true,
     "sourceMap": true,

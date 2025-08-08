@@ -1,12 +1,12 @@
 {
-  "name": "ngx-storage",
+  "name": "ngx-browser-storage",
   "version": "0.0.0",
   "author": "Edison Augusthy",
   "license": "MIT",
   "description": "A modern, reactive package for browser storage management with AES-GCM encryption",
   "keywords": [
     "Angular Storage",
-    "ngx-storage",
+    "ngx-browser-storage",
     "Storage",
     "browser Storage",
     "Session Storage",
@@ -15,7 +15,7 @@
     "data storage",
     "encryption",
     "base64",
-    "ngx-storage",
+    "ngx-browser-storage",
     "session management"
   ],
   "peerDependencies": {

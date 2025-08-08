@@ -7,15 +7,15 @@ import {
   STORAGE_OPTIONS,
   StorageConfig,
   StorageFlags,
-} from './ngx-storage.model';
-import { NgxStorageService } from './ngx-storage.service';
+} from './ngx-browser-storage.model';
+import { NgxBrowserStorageService } from './ngx-browser-storage.service';
 
-export function provideNgxStorage<T = any>(
+export function provideNgxBrowserStorage<T = any>(
   optionsFactory: () => StorageConfig,
   flags: StorageFlags = {}
 ): Provider[] {
   return [
-    NgxStorageService,
+    NgxBrowserStorageService,
     {
       provide: STORAGE_OPTIONS,
       useFactory: optionsFactory,
@@ -28,9 +28,9 @@ export function provideNgxStorage<T = any>(
 }
 
 /**
- * Provides multiple named NgxStorageService instances
+ * Provides multiple named NgxBrowserStorageService instances
  */
-export function provideNamedNgxStorage(
+export function provideNamedNgxBrowserStorage(
   optionsFactory: () => NamedStorageConfig,
   flags: StorageFlags = {}
 ): Provider[] {

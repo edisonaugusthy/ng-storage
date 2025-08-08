@@ -1,6 +1,6 @@
-# NgxStorage
+# ngx-browser-storage
 
-[![npm version](https://badge.fury.io/js/ngx-storage.svg)](https://badge.fury.io/js/ngx-storage)
+[![npm version](https://badge.fury.io/js/ngx-browser-storage.svg)](https://badge.fury.io/js/ngx-browser-storage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Angular](https://img.shields.io/badge/Angular-20.0%2B-red.svg)](https://angular.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8%2B-blue.svg)](https://www.typescriptlang.org/)
@@ -22,17 +22,17 @@
 ## 📦 Installation
 
 ```bash
-npm install ngx-storage
+npm install ngx-browser-storage
 ```
 
 ## 🔢 Versioning
 
 This library follows Angular's versioning for clear compatibility:
 
-| Angular Version | NgxStorage Version | Status     |
-| --------------- | ------------------ | ---------- |
-| 20.0.x          | 20.0.x             | ✅ Current |
-| 20.1.x          | 20.1.x             | 🔄 Planned |
+| Angular Version | ngx-browser-storage Version | Status     |
+| --------------- | --------------------------- | ---------- |
+| 20.0.x          | 20.0.x                      | ✅ Current |
+| 20.1.x          | 20.1.x                      | 🔄 Planned |
 
 ## 🚀 Quick Start
 
@@ -41,11 +41,11 @@ This library follows Angular's versioning for clear compatibility:
 ```typescript
 // app.config.ts
 import { ApplicationConfig } from "@angular/core";
-import { provideNgxStorage } from "ngx-storage";
+import { provideNgxBrowserStorage } from "ngx-browser-storage";
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideNgxStorage({
+    provideNgxBrowserStorage({
       prefix: "myapp",
       storageType: "localStorage",
       defaultTTL: 60, // 1 hour
@@ -59,7 +59,7 @@ export const appConfig: ApplicationConfig = {
 
 ```typescript
 import { Component, inject, signal } from "@angular/core";
-import { NgxStorageService } from "ngx-storage";
+import { NgxBrowserStorageService } from "ngx-browser-storage";
 
 @Component({
   selector: "app-user-profile",
@@ -78,7 +78,7 @@ import { NgxStorageService } from "ngx-storage";
   `,
 })
 export class UserProfileComponent {
-  private storage = inject(NgxStorageService);
+  private storage = inject(NgxBrowserStorageService);
 
   username = "";
   currentUser = signal<User | null>(null);
@@ -107,7 +107,7 @@ export class UserProfileComponent {
 
 ### AES-GCM Encryption
 
-NgxStorage provides military-grade encryption using the Web Crypto API:
+NgxBrowserStorage provides encryption using the Web Crypto API:
 
 ```typescript
 // Store sensitive data with encryption
@@ -144,11 +144,11 @@ if (storage.isEncryptionSupported()) {
 ### Simple Configuration
 
 ```typescript
-import { provideNgxStorage } from "ngx-storage";
+import { provideNgxBrowserStorage } from "ngx-browser-storage";
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideNgxStorage({
+    provideNgxBrowserStorage({
       prefix: "myapp",
       storageType: "localStorage",
       defaultTTL: 0, // No expiration
@@ -162,12 +162,12 @@ export const appConfig: ApplicationConfig = {
 ### Advanced Configuration with Factories
 
 ```typescript
-import { provideNgxStorage } from "ngx-storage";
+import { provideNgxBrowserStorage } from "ngx-browser-storage";
 import { environment } from "./environments/environment";
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideNgxStorage(
+    provideNgxBrowserStorage(
       () => ({
         prefix: environment.production ? "prod-app" : "dev-app",
         storageType: environment.production ? "localStorage" : "sessionStorage",
@@ -188,11 +188,11 @@ export const appConfig: ApplicationConfig = {
 ### Multiple Named Storage Instances
 
 ```typescript
-import { provideNamedNgxStorage, NgxStorageManager } from "ngx-storage";
+import { provideNamedNgxBrowserStorage, NgxBrowserStorageManager } from "ngx-browser-storage";
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideNamedNgxStorage(() => ({
+    provideNamedNgxBrowserStorage(() => ({
       user: {
         prefix: "user-data",
         storageType: "localStorage",
@@ -212,7 +212,7 @@ export const appConfig: ApplicationConfig = {
         enableLogging: true,
       },
     })),
-    NgxStorageManager,
+    NgxBrowserStorageManager,
   ],
 };
 ```
@@ -294,7 +294,7 @@ export class MyComponent {
   userSignal = signal<User | null>(null);
 
   async ngOnInit() {
-    this.userSignal = await inject(NgxStorageService).createSignal<User>("user");
+    this.userSignal = await inject(NgxBrowserStorageService).createSignal<User>("user");
   }
 }
 ```
@@ -398,7 +398,7 @@ storage.clearEncryptionKey();
 ```typescript
 @Injectable({ providedIn: "root" })
 export class AuthService {
-  private storage = inject(NgxStorageService);
+  private storage = inject(NgxBrowserStorageService);
 
   // Reactive authentication state
   isAuthenticated = computed(() => this.storage.stats().keys.includes("auth"));
@@ -432,7 +432,7 @@ export class AuthService {
 ```typescript
 @Injectable({ providedIn: "root" })
 export class CartService {
-  private storage = inject(NgxStorageService);
+  private storage = inject(NgxBrowserStorageService);
 
   // Reactive cart state
   items = signal<CartItem[]>([]);
@@ -473,7 +473,7 @@ export class CartService {
 ```typescript
 @Injectable({ providedIn: "root" })
 export class PreferencesService {
-  private storage = inject(NgxStorageService);
+  private storage = inject(NgxBrowserStorageService);
 
   // Reactive preferences
   theme = signal<"light" | "dark">("light");
@@ -509,7 +509,7 @@ export class PreferencesService {
 ```typescript
 @Injectable({ providedIn: "root" })
 export class FormAutoSaveService {
-  private storage = inject(NgxStorageService);
+  private storage = inject(NgxBrowserStorageService);
   private saveTimeouts = new Map<string, number>();
 
   async autoSave<T>(formId: string, data: T, delayMs = 1000): Promise<void> {
@@ -559,7 +559,7 @@ export class FormAutoSaveService {
   selector: "app-dashboard",
 })
 export class DashboardComponent {
-  private storageManager = inject(NgxStorageManager);
+  private storageManager = inject(NgxBrowserStorageManager);
 
   // Different storage instances for different purposes
   private userStorage = this.storageManager.getStorage("user");
@@ -587,11 +587,11 @@ export class DashboardComponent {
 ### Test Configuration
 
 ```typescript
-import { provideNgxStorage } from "ngx-storage";
+import { provideNgxBrowserStorage } from "ngx-browser-storage";
 
 // test-setup.ts
 export function provideStorageForTesting() {
-  return provideNgxStorage(
+  return provideNgxBrowserStorage(
     {
       prefix: "test",
       storageType: "sessionStorage",
@@ -608,14 +608,14 @@ export function provideStorageForTesting() {
 }
 
 // In test files
-describe("NgxStorageService", () => {
-  let service: NgxStorageService;
+describe("NgxBrowserStorageService", () => {
+  let service: NgxBrowserStorageService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [...provideStorageForTesting()],
     });
-    service = TestBed.inject(NgxStorageService);
+    service = TestBed.inject(NgxBrowserStorageService);
   });
 
   it("should store and retrieve data", async () => {
@@ -642,7 +642,7 @@ describe("NgxStorageService", () => {
 
 ## 🔄 Migration Guide
 
-### From ng7-storage to ngx-storage
+### From ng7-storage to ngx-browser-storage
 
 This is a breaking change that requires updates:
 
@@ -653,7 +653,7 @@ This is a breaking change that requires updates:
 npm uninstall ng7-storage
 
 # Install new package
-npm install ngx-storage
+npm install ngx-browser-storage
 ```
 
 #### 2. Update Imports
@@ -663,7 +663,7 @@ npm install ngx-storage
 import { provideNgStorageConfig } from "ng7-storage";
 
 // After
-import { provideNgxStorage } from "ngx-storage";
+import { provideNgxBrowserStorage } from "ngx-browser-storage";
 ```
 
 #### 3. Update Method Calls
@@ -690,17 +690,17 @@ const signal = await storage.createSignal("user");
 
 #### 5. Storage Prefix Changes
 
-The default prefix changed from `ng-storage` to `ngx-storage`. Existing data with the old prefix won't be automatically migrated. You can:
+The default prefix changed from `ng-storage` to `ngx-browser-storage`. Existing data with the old prefix won't be automatically migrated. You can:
 
 - Keep using a custom prefix: `prefix: 'ng-storage'`
 - Or migrate data manually in your application
 
 ### Breaking Changes Summary
 
-- ⚠️ **Package Name**: `ng7-storage` → `ngx-storage`
+- ⚠️ **Package Name**: `ng7-storage` → `ngx-browser-storage`
 - ⚠️ **Method Signatures**: Core methods now async
 - ⚠️ **Signal Creation**: Now async
-- ⚠️ **Default Prefix**: `ng-storage` → `ngx-storage`
+- ⚠️ **Default Prefix**: `ng-storage` → `ngx-browser-storage`
 - ✅ **Enhanced**: Much stronger AES-GCM encryption
 - ✅ **Compatible**: Existing stored data still readable
 
@@ -744,10 +744,10 @@ npm run check-angular-version
 
 #### 🚨 Breaking Changes
 
-- **Package renamed**: `ng7-storage` → `ngx-storage`
+- **Package renamed**: `ng7-storage` → `ngx-browser-storage`
 - **Methods now async**: `setData()`, `getData()`, `hasKey()` for encryption support
 - **Signal creation async**: `createSignal()` now returns `Promise<Signal<T>>`
-- **Default prefix changed**: `ng-storage` → `ngx-storage`
+- **Default prefix changed**: `ng-storage` → `ngx-browser-storage`
 
 #### ✨ New Features
 

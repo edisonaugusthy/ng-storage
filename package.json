@@ -1,10 +1,10 @@
 {
-  "name": "ngx-storage",
+  "name": "ngx-browser-storage",
   "version": "20.0.1",
   "description": "A modern, reactive package for browser storage management with AES-GCM encryption",
   "keywords": [
     "Angular Storage",
-    "ngx-storage",
+    "ngx-browser-storage",
     "cookies",
     "Storage",
     "browser Storage",
@@ -14,11 +14,11 @@
     "prepare": "husky install",
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build ngx-storage",
+    "build": "ng build ngx-browser-storage",
     "publish": "npm publish",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint-package": "ng lint ngx-storage",
+    "lint-package": "ng lint ngx-browser-storage",
     "commit": "git-cz",
     "semantic-release": "semantic-release"
   },
@@ -73,6 +73,6 @@
     }
   },
   "release": {
-    "pkgRoot": "dist/ngx-storage"
+    "pkgRoot": "dist/ngx-browser-storage"
   }
 }

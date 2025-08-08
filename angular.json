@@ -3,23 +3,23 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ngx-storage": {
+    "ngx-browser-storage": {
       "projectType": "library",
-      "root": "projects/ngx-storage",
-      "sourceRoot": "projects/ngx-storage/src",
+      "root": "projects/ngx-browser-storage",
+      "sourceRoot": "projects/ngx-browser-storage/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",
           "options": {
-            "project": "projects/ngx-storage/ng-package.json"
+            "project": "projects/ngx-browser-storage/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ngx-storage/tsconfig.lib.prod.json"
+              "tsConfig": "projects/ngx-browser-storage/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/ngx-storage/tsconfig.lib.json"
+              "tsConfig": "projects/ngx-browser-storage/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -27,7 +27,7 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "tsConfig": "projects/ngx-storage/tsconfig.spec.json",
+            "tsConfig": "projects/ngx-browser-storage/tsconfig.spec.json",
             "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
